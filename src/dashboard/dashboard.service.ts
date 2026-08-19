@@ -54,7 +54,7 @@ export class DashboardService {
 
       this.taskRepository.count({
         where: {
-          user: {
+          assignees: {
             id: userId,
           },
         },
@@ -62,7 +62,7 @@ export class DashboardService {
 
       this.taskRepository.count({
         where: {
-          user: {
+          assignees: {
             id: userId,
           },
           completed: true,
@@ -71,7 +71,7 @@ export class DashboardService {
 
       this.taskRepository.find({
         where: {
-          user: {
+          assignees: {
             id: userId,
           },
         },

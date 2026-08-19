@@ -1,11 +1,16 @@
+import { Column as ColumnEntity } from 'src/columns/entities/column.entity';
+import { Project } from 'src/projects/entities/project.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
-  Column,
   Entity,
-  JoinColumn,
-  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  Column,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 @Entity()
@@ -35,8 +40,11 @@ export class Task {
   })
   priority!: 'low' | 'medium' | 'high';
 
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  position!: number;
 
   @Column({
     type: 'timestamp',
@@ -44,15 +52,25 @@ export class Task {
   })
   dueDate!: Date | null;
 
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
+  @CreateDateColumn()
   createdAt!: Date;
 
-  @ManyToOne(() => User, (user) => user.tasks, {
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @ManyToMany(() => User, (user) => user.assignedTasks)
+  @JoinTable()
+  assignees!: User[];
+
+  @ManyToOne(() => Project, (project) => project.tasks, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn()
-  user!: User;
+  @JoinColumn({ name: 'projectId' })
+  project!: Project;
+
+  @ManyToOne(() => ColumnEntity, (column) => column.tasks, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'columnId' })
+  column!: ColumnEntity;
 }

@@ -1,7 +1,13 @@
 import { ProjectMember } from 'src/project-members/entities/project-member.entity';
 import { Project } from 'src/projects/entities/project.entity';
 import { Task } from 'src/tasks/entities/task.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToMany,
+} from 'typeorm';
 
 @Entity()
 export class User {
@@ -17,8 +23,8 @@ export class User {
   @Column({ select: false })
   password!: string;
 
-  @OneToMany(() => Task, (task) => task.user)
-  tasks!: Task[];
+  @ManyToMany(() => Task, (task) => task.assignees)
+  assignedTasks!: Task[];
 
   @OneToMany(() => Project, (project) => project.owner)
   projects!: Project[];

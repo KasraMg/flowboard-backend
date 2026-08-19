@@ -1,6 +1,9 @@
 import {
+  IsArray,
   IsBoolean,
+  IsDateString,
   IsIn,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -28,12 +31,21 @@ export class CreateTaskDto {
   backgroundColor?: string;
 
   @IsOptional()
-  @IsString()
   @IsIn(['low', 'medium', 'high'])
   priority?: 'low' | 'medium' | 'high';
 
-  userId: number;
+  @IsOptional()
+  @IsDateString()
+  dueDate?: string;
+
+  @IsInt()
+  projectId!: number;
+
+  @IsInt()
+  columnId!: number;
 
   @IsOptional()
-  dueDate?: Date;
+  @IsArray()
+  @IsInt({ each: true })
+  assigneeIds?: number[];
 }

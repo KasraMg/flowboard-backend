@@ -22,7 +22,7 @@ export class UsersService {
       },
       relations: {
         projects: true,
-        tasks: true,
+        assignedTasks: true,
       },
     });
   }

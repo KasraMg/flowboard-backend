@@ -1,4 +1,6 @@
+import { Column as ColumnEntity } from 'src/columns/entities/column.entity';
 import { ProjectMember } from 'src/project-members/entities/project-member.entity';
+import { Task } from 'src/tasks/entities/task.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -66,4 +68,10 @@ export class Project {
 
   @OneToMany(() => ProjectMember, (member) => member.project)
   members!: ProjectMember[];
+
+  @OneToMany(() => ColumnEntity, (column) => column.project)
+  columns!: ColumnEntity[];
+
+  @OneToMany(() => Task, (task) => task.project)
+  tasks!: Task[];
 }

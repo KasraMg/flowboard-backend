@@ -62,6 +62,11 @@ export class ProjectsService {
         members: {
           user: true,
         },
+        columns: {
+          tasks: {
+            assignees: true,
+          },
+        },
       },
     });
 
