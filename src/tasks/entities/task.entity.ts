@@ -73,4 +73,11 @@ export class Task {
   })
   @JoinColumn({ name: 'columnId' })
   column!: ColumnEntity;
+
+  @ManyToOne(() => User, (user) => user.createdTasks, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'creatorId' })
+  creator!: User | null;
 }

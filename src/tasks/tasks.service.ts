@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -40,7 +41,9 @@ export class TasksService {
       where: {
         id: projectId,
         members: {
-          id: user.id,
+          user: {
+            id: user.id,
+          },
         },
       },
     });
@@ -95,6 +98,7 @@ export class TasksService {
       project,
       column,
       assignees,
+      creator: user,
     });
 
     const taskSaved = await this.taskRepository.save(task);
@@ -103,6 +107,77 @@ export class TasksService {
       success: true,
       data: taskSaved,
       message: 'task saved successfully',
+    };
+  }
+
+  async update(taskId: number, updateTaskDto: UpdateTaskDto, user: User) {
+    const task = await this.taskRepository.findOne({
+      where: {
+        id: taskId,
+      },
+      relations: {
+        project: {
+          owner: true,
+        },
+        creator: true,
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    const isOwner = task.project.owner.id === user.id;
+    const isCreator = task.creator?.id === user.id;
+
+    if (!isOwner && !isCreator) {
+      throw new ForbiddenException(
+        'You do not have permission to edit this task',
+      );
+    }
+
+    Object.assign(task, updateTaskDto);
+
+    const updatedTask = await this.taskRepository.save(task);
+
+    return {
+      success: true,
+      data: updatedTask,
+      message: 'Task updated successfully',
+    };
+  }
+
+  async remove(taskId: number, user: User) {
+    const task = await this.taskRepository.findOne({
+      where: {
+        id: taskId,
+      },
+      relations: {
+        project: {
+          owner: true,
+        },
+        creator: true,
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    const isOwner = task.project.owner.id === user.id;
+    const isCreator = task.creator?.id === user.id;
+
+    if (!isOwner && !isCreator) {
+      throw new ForbiddenException(
+        'You do not have permission to delete this task',
+      );
+    }
+
+    await this.taskRepository.delete(taskId);
+
+    return {
+      success: true,
+      message: 'Task removed successfully',
     };
   }
 
@@ -123,15 +198,5 @@ export class TasksService {
         assignees: true,
       },
     });
-  }
-
-  async update(id: number, updateTaskDto: UpdateTaskDto) {
-    await this.taskRepository.update(id, updateTaskDto);
-
-    return this.findOne(id);
-  }
-
-  remove(id: number) {
-    return this.taskRepository.delete(id);
   }
 }

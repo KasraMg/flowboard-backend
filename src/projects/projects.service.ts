@@ -65,6 +65,10 @@ export class ProjectsService {
         columns: {
           tasks: {
             assignees: true,
+            project: {
+              owner: true,
+            },
+            creator: true,
           },
         },
       },

@@ -31,4 +31,7 @@ export class User {
 
   @OneToMany(() => ProjectMember, (member) => member.user)
   projectMembers!: ProjectMember[];
+
+  @OneToMany(() => Task, (task) => task.creator)
+  createdTasks!: Task[];
 }

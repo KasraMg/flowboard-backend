@@ -37,13 +37,21 @@ export class TasksController {
     return this.tasksService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.update(+id, updateTaskDto);
+  @Patch(':taskId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  update(
+    @Param('taskId') taskId: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+    @Req() req: Express.Request,
+  ) {
+    return this.tasksService.update(+taskId, updateTaskDto, req.user as User);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tasksService.remove(+id);
+  @Delete(':taskId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  remove(@Param('taskId') taskId: string, @Req() req: Express.Request) {
+    return this.tasksService.remove(+taskId, req.user as User);
   }
 }

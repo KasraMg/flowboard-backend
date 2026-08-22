@@ -26,10 +26,13 @@ export class ColumnsService {
       where: {
         id: Number(projectId),
         members: {
-          id: user.id,
+          user: {
+            id: user.id,
+          },
         },
       },
     });
+
     if (!project) {
       throw new NotFoundException('project not found');
     }
