@@ -40,11 +40,6 @@ export class InvitationsController {
     return this.invitationsService.findAll(req.user as User);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.invitationsService.findOne(+id);
-  }
-
   @Patch(':id/status')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

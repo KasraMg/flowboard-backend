@@ -87,10 +87,12 @@ export class InvitationsService {
     };
   }
 
-  findAll(user: User) {
-    return this.invitationRepository.find({
+  async findAll(user: User) {
+    const invitations = await this.invitationRepository.find({
       where: {
-        invitedUser: user,
+        invitedUser: {
+          id: user.id,
+        },
         status: InvitationStatus.PENDING,
       },
       relations: {
@@ -98,6 +100,11 @@ export class InvitationsService {
         invitedBy: true,
       },
     });
+
+    return {
+      success: true,
+      data: invitations,
+    };
   }
 
   async changeStatus(
@@ -187,9 +194,5 @@ export class InvitationsService {
 
   remove(id: number) {
     return `This action removes a #${id} invitation`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} invitation`;
   }
 }

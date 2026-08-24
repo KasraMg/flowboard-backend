@@ -136,7 +136,21 @@ export class TasksService {
       );
     }
 
-    Object.assign(task, updateTaskDto);
+    const { assigneeIds, ...taskData } = updateTaskDto;
+
+    Object.assign(task, taskData);
+
+    if (assigneeIds !== undefined && assigneeIds.length > 0) {
+      const assignees = await this.userRepository.find({
+        where: assigneeIds.map((id) => ({ id })),
+      });
+
+      if (assignees.length !== assigneeIds.length) {
+        throw new NotFoundException('One or more assignees not found');
+      }
+
+      task.assignees = assignees;
+    } else task.assignees = [];
 
     const updatedTask = await this.taskRepository.save(task);
 

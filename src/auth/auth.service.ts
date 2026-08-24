@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -24,6 +25,17 @@ export class AuthService {
 
   async register(data: { name: string; email: string; password: string }) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const emailExit = await this.userRepository.findOne({
+      where: {
+        email: data.email,
+      },
+    });
+    if (emailExit) {
+      throw new ConflictException(
+        'An account is already registered with your email address',
+      );
+    }
 
     const user = this.userRepository.create({
       ...data,
