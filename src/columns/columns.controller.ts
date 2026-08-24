@@ -6,6 +6,7 @@ import {
   Param,
   Req,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { ColumnsService } from './columns.service';
 import { CreateColumnDto } from './dto/create-column.dto';
@@ -44,8 +45,10 @@ export class ColumnsController {
     return this.columnsService.update(id, updateColumnDto, req.user as User);
   }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.columnsService.remove(+id);
-  // }
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  remove(@Param('id') id: string, @Req() req: Express.Request) {
+    return this.columnsService.remove(+id, req.user as User);
+  }
 }

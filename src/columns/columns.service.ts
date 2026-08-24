@@ -89,4 +89,26 @@ export class ColumnsService {
       data: updatedColumn,
     };
   }
+  async remove(id: number, user: User) {
+    const column = await this.columnRepository.findOne({
+      where: {
+        id,
+        project: {
+          owner: {
+            id: user.id,
+          },
+        },
+      },
+    });
+
+    if (!column) {
+      throw new NotFoundException('column not found');
+    }
+
+    await this.columnRepository.delete(id);
+    return {
+      success: true,
+      message: 'Column removed successfully',
+    };
+  }
 }
