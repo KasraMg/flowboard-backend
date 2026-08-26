@@ -17,6 +17,35 @@ export class DashboardService {
   ) {}
 
   async getDashboard(userId: number) {
+    const recentProjectsPromise = this.projectMemberRepository
+      .createQueryBuilder('projectMember')
+      .innerJoinAndSelect('projectMember.project', 'project')
+      .leftJoin('project.tasks', 'task')
+      .where('projectMember.userId = :userId', { userId })
+      .andWhere('project.status = :status', {
+        status: ProjectStatus.ACTIVE,
+      })
+      .select([
+        'projectMember.id',
+        'project.id',
+        'project.title',
+        'project.description',
+        'project.background',
+        'project.status',
+        'project.createdAt',
+        'project.updatedAt',
+      ])
+      .addSelect('COUNT(task.id)', 'totalTasks')
+      .addSelect(
+        `COUNT(CASE WHEN task.completed = true THEN 1 END)`,
+        'completedTasks',
+      )
+      .groupBy('projectMember.id')
+      .addGroupBy('project.id')
+      .orderBy('project.createdAt', 'DESC')
+      .limit(4)
+      .getRawAndEntities();
+
     const [
       totalProjects,
       recentProjects,
@@ -32,25 +61,7 @@ export class DashboardService {
         },
       }),
 
-      this.projectMemberRepository.find({
-        where: {
-          user: {
-            id: userId,
-          },
-          project: {
-            status: ProjectStatus.ACTIVE,
-          },
-        },
-        relations: {
-          project: true,
-        },
-        order: {
-          project: {
-            createdAt: 'DESC',
-          },
-        },
-        take: 4,
-      }),
+      recentProjectsPromise,
 
       this.taskRepository.count({
         where: {
@@ -75,12 +86,33 @@ export class DashboardService {
             id: userId,
           },
         },
+        relations: {
+          project: true,
+          assignees: true,
+        },
         order: {
           updatedAt: 'DESC',
         },
         take: 7,
       }),
     ]);
+
+    const recentProjectsData = recentProjects.entities.map((project, index) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const total = Number(recentProjects.raw[index].totalTasks);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const completed = Number(recentProjects.raw[index].completedTasks);
+
+      return {
+        ...project,
+        taskStats: {
+          total,
+          completed,
+          completionPercentage:
+            total === 0 ? 0 : Math.round((completed / total) * 100),
+        },
+      };
+    });
 
     return {
       success: true,
@@ -92,7 +124,7 @@ export class DashboardService {
           incompleteTasks: totalTasks - completedTasks,
         },
 
-        recentProjects: recentProjects.map((member) => member.project),
+        recentProjects: recentProjectsData,
 
         recentTasks,
       },

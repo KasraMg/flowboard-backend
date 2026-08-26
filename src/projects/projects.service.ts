@@ -42,13 +42,49 @@ export class ProjectsService {
     };
   }
 
-  findAll(user: User) {
-    return this.projectRepository.find({
-      where: {
-        owner: {
-          id: user.id,
+  async findAll(user: User) {
+    const projects = await this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoin('project.tasks', 'task')
+      .where('project.ownerId = :userId', {
+        userId: user.id,
+      })
+      .select([
+        'project.id',
+        'project.title',
+        'project.description',
+        'project.background',
+        'project.status',
+        'project.createdAt',
+        'project.updatedAt',
+      ])
+      .addSelect('COUNT(task.id)', 'totalTasks')
+      .addSelect(
+        `COUNT(CASE WHEN task.completed = true THEN 1 END)`,
+        'completedTasks',
+      )
+      .groupBy('project.id')
+      .orderBy('project.createdAt', 'DESC')
+      .getRawAndEntities();
+
+    return projects.entities.map((project, index) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const totalTasks = Number(projects.raw[index].totalTasks);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const completedTasks = Number(projects.raw[index].completedTasks);
+
+      return {
+        ...project,
+        taskStats: {
+          total: totalTasks,
+          completed: completedTasks,
+          incomplete: totalTasks - completedTasks,
+          completionPercentage:
+            totalTasks === 0
+              ? 0
+              : Math.round((completedTasks / totalTasks) * 100),
         },
-      },
+      };
     });
   }
 
