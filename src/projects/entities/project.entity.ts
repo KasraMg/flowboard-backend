@@ -53,6 +53,8 @@ export class Project {
   @UpdateDateColumn()
   updatedAt!: Date;
 
+  isFave!: boolean;
+
   @Column({
     type: 'enum',
     enum: ProjectStatus,

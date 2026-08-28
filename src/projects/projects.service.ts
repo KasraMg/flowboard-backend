@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -9,6 +11,7 @@ import {
   ProjectMember,
   ProjectMemberRole,
 } from 'src/project-members/entities/project-member.entity';
+import { Favorite } from 'src/favorites/entities/favorite.entity';
 
 @Injectable()
 export class ProjectsService {
@@ -18,6 +21,9 @@ export class ProjectsService {
 
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>,
+
+    @InjectRepository(Favorite)
+    private favoriterRepository: Repository<Favorite>,
   ) {}
 
   async create(createProjectDto: CreateProjectDto, user: User) {
@@ -63,18 +69,41 @@ export class ProjectsService {
         `COUNT(CASE WHEN task.completed = true THEN 1 END)`,
         'completedTasks',
       )
+      .addSelect(
+        `EXISTS (
+        SELECT 1
+        FROM favorite favorite
+        WHERE favorite."projectId" = project.id
+        AND favorite."userId" = :userId
+      )`,
+        'isFave',
+      )
+      .setParameter('userId', user.id)
       .groupBy('project.id')
       .orderBy('project.createdAt', 'DESC')
       .getRawAndEntities();
 
     return projects.entities.map((project, index) => {
+      const raw = projects.raw[index];
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const totalTasks = Number(projects.raw[index].totalTasks);
+      const totalTasks = Number(raw.totalTasks);
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const completedTasks = Number(projects.raw[index].completedTasks);
+      const completedTasks = Number(raw.completedTasks);
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const isFave =
+        raw.isFave === true ||
+        raw.isFave === 'true' ||
+        raw.isFave === 1 ||
+        raw.isFave === '1';
 
       return {
-        ...project,
+        project: {
+          ...project,
+          isFave,
+        },
         taskStats: {
           total: totalTasks,
           completed: completedTasks,
@@ -114,6 +143,18 @@ export class ProjectsService {
       throw new NotFoundException('Project not found');
     }
 
+    const isProjectUserFave = await this.favoriterRepository.findOne({
+      where: {
+        user: {
+          id: user.id,
+        },
+        project: {
+          id: project.id,
+        },
+      },
+    });
+
+    project.isFave = Boolean(isProjectUserFave);
     const isOwner = project.owner.id === user.id;
 
     const isMember = project.members.some(

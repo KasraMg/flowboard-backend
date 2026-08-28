@@ -1,3 +1,4 @@
+import { Favorite } from 'src/favorites/entities/favorite.entity';
 import { ProjectMember } from 'src/project-members/entities/project-member.entity';
 import { Project } from 'src/projects/entities/project.entity';
 import { Task } from 'src/tasks/entities/task.entity';
@@ -31,6 +32,9 @@ export class User {
 
   @OneToMany(() => ProjectMember, (member) => member.user)
   projectMembers!: ProjectMember[];
+
+  @OneToMany(() => Favorite, (member) => member.user)
+  favorites!: Favorite[];
 
   @OneToMany(() => Task, (task) => task.creator)
   createdTasks!: Task[];

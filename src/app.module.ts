@@ -10,6 +10,7 @@ import { ProjectMembersModule } from './project-members/project-members.module';
 import { InvitationsModule } from './invitations/invitations.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ColumnsModule } from './columns/columns.module';
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
   imports: [
@@ -40,6 +41,8 @@ import { ColumnsModule } from './columns/columns.module';
     DashboardModule,
 
     ColumnsModule,
+
+    FavoritesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

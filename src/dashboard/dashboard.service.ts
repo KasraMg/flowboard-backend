@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -40,6 +42,16 @@ export class DashboardService {
         `COUNT(CASE WHEN task.completed = true THEN 1 END)`,
         'completedTasks',
       )
+      .addSelect(
+        `EXISTS (
+        SELECT 1
+        FROM favorite favorite
+        WHERE favorite."projectId" = project.id
+        AND favorite."userId" = :userId
+      )`,
+        'isFave',
+      )
+      .setParameter('userId', userId)
       .groupBy('projectMember.id')
       .addGroupBy('project.id')
       .orderBy('project.createdAt', 'DESC')
@@ -99,15 +111,28 @@ export class DashboardService {
 
     const recentProjectsData = recentProjects.entities.map((project, index) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const total = Number(recentProjects.raw[index].totalTasks);
+      const raw = recentProjects.raw[index];
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const completed = Number(recentProjects.raw[index].completedTasks);
+      const total = Number(raw.totalTasks);
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const completed = Number(raw.completedTasks);
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const isFave =
+        raw.isFave === true ||
+        raw.isFave === 'true' ||
+        raw.isFave === 1 ||
+        raw.isFave === '1';
 
       return {
         ...project,
+        isFave,
         taskStats: {
           total,
           completed,
+          incomplete: total - completed,
           completionPercentage:
             total === 0 ? 0 : Math.round((completed / total) * 100),
         },
