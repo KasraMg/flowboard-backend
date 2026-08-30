@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateColumnDto } from './dto/create-column.dto';
 import { UpdateColumnDto } from './dto/update-column.dto';
 import { User } from 'src/users/entities/user.entity';
@@ -6,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from 'src/projects/entities/project.entity';
 import { Repository } from 'typeorm';
 import { Column } from './entities/column.entity';
+import { ReorderColumnsDto } from './dto/reorder-column-dto';
 
 @Injectable()
 export class ColumnsService {
@@ -89,6 +95,80 @@ export class ColumnsService {
       data: updatedColumn,
     };
   }
+
+  async reorder(
+    projectId: number,
+    reorderColumnsDto: ReorderColumnsDto,
+    user: User,
+  ) {
+    const { columnIds } = reorderColumnsDto;
+
+    const project = await this.projectRepository.findOne({
+      where: {
+        id: projectId,
+      },
+      relations: {
+        members: {
+          user: true,
+        },
+        owner: true,
+      },
+    });
+
+    if (!project) {
+      throw new ForbiddenException('Project not found');
+    }
+
+    const isOwner = project.owner.id === user.id;
+
+    const isMember = project.members.some(
+      (member) => member.user.id === user.id,
+    );
+
+    if (!isOwner && !isMember) {
+      throw new ForbiddenException(
+        'You do not have permission to reorder columns',
+      );
+    }
+
+    const columns = await this.columnRepository.find({
+      where: {
+        project: {
+          id: projectId,
+        },
+      },
+    });
+
+    if (columns.length !== columnIds.length) {
+      throw new BadRequestException('Invalid columns');
+    }
+
+    const columnIdsSet = new Set(columns.map((column) => column.id));
+
+    const isValid = columnIds.every((id) => columnIdsSet.has(id));
+
+    if (!isValid) {
+      throw new BadRequestException(
+        'One or more columns do not belong to this project',
+      );
+    }
+
+    const reorderedColumns = columnIds.map((columnId, index) => {
+      const column = columns.find((column) => column.id === columnId)!;
+
+      column.position = index;
+
+      return column;
+    });
+
+    await this.columnRepository.save(reorderedColumns);
+
+    return {
+      success: true,
+      message: 'Columns reordered successfully',
+    };
+  }
+
   async remove(id: number, user: User) {
     const column = await this.columnRepository.findOne({
       where: {

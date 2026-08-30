@@ -14,6 +14,7 @@ import { UpdateColumnDto } from './dto/update-column.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from 'src/users/entities/user.entity';
+import { ReorderColumnsDto } from './dto/reorder-column-dto';
 
 @Controller('columns')
 export class ColumnsController {
@@ -43,6 +44,21 @@ export class ColumnsController {
     @Req() req: Express.Request,
   ) {
     return this.columnsService.update(id, updateColumnDto, req.user as User);
+  }
+
+  @Patch('reorder/:projectId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  reorder(
+    @Param('projectId') projectId: number,
+    @Body() reorderColumnsDto: ReorderColumnsDto,
+    @Req() req: Express.Request,
+  ) {
+    return this.columnsService.reorder(
+      projectId,
+      reorderColumnsDto,
+      req.user as User,
+    );
   }
 
   @Delete(':id')

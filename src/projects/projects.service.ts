@@ -137,6 +137,11 @@ export class ProjectsService {
           },
         },
       },
+      order: {
+        columns: {
+          position: 'ASC',
+        },
+      },
     });
 
     if (!project) {
