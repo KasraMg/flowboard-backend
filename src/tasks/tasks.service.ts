@@ -127,14 +127,14 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    const isOwner = task.project.owner.id === user.id;
-    const isCreator = task.creator?.id === user.id;
+    // const isOwner = task.project.owner.id === user.id;
+    // const isCreator = task.creator?.id === user.id;
 
-    if (!isOwner && !isCreator) {
-      throw new ForbiddenException(
-        'You do not have permission to edit this task',
-      );
-    }
+    // if (!isOwner && !isCreator) {
+    //   throw new ForbiddenException(
+    //     'You do not have permission to edit this task',
+    //   );
+    // }
 
     const { assigneeIds, ...taskData } = updateTaskDto;
 
