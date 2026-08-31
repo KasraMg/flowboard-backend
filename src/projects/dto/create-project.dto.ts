@@ -1,4 +1,4 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 import { Column } from 'typeorm';
 
 export enum ProjectBackground {
@@ -14,6 +14,10 @@ export class CreateProjectDto {
   @IsString()
   @MinLength(3)
   title!: string;
+
+  @IsString()
+  @IsOptional()
+  description!: string;
 
   @Column({
     type: 'enum',

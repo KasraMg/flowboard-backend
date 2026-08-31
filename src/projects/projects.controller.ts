@@ -46,17 +46,20 @@ export class ProjectsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProjectDto: UpdateProjectDto,
+    @Req() req: Express.Request,
   ) {
-    return this.projectsService.update(id, updateProjectDto);
+    return this.projectsService.update(id, updateProjectDto, req.user as User);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.projectsService.remove(id);
+  remove(@Param('id', ParseIntPipe) id: number, @Req() req: Express.Request) {
+    return this.projectsService.remove(id, req.user as User);
   }
 }

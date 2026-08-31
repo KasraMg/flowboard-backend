@@ -19,7 +19,9 @@ export class Column {
   @ColumnTypeOrm()
   position!: number;
 
-  @ManyToOne(() => Project, (project) => project.columns)
+  @ManyToOne(() => Project, (project) => project.columns, {
+    onDelete: 'CASCADE',
+  })
   project!: Project;
 
   @OneToMany(() => Task, (task) => task.column)

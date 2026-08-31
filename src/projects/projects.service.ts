@@ -52,7 +52,8 @@ export class ProjectsService {
     const projects = await this.projectRepository
       .createQueryBuilder('project')
       .leftJoin('project.tasks', 'task')
-      .where('project.ownerId = :userId', {
+      .innerJoin('project.members', 'member')
+      .where('member.userId = :userId', {
         userId: user.id,
       })
       .select([
@@ -86,13 +87,9 @@ export class ProjectsService {
     return projects.entities.map((project, index) => {
       const raw = projects.raw[index];
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const totalTasks = Number(raw.totalTasks);
-
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const completedTasks = Number(raw.completedTasks);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const isFave =
         raw.isFave === true ||
         raw.isFave === 'true' ||
@@ -173,11 +170,53 @@ export class ProjectsService {
     return project;
   }
 
-  update(id: number, updateProjectDto: UpdateProjectDto) {
-    return `This action updates a #${id} project`;
+  async update(id: number, updateProjectDto: UpdateProjectDto, user: User) {
+    const project = await this.projectRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        owner: true,
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+    if (project.owner.id !== user.id) {
+      throw new NotFoundException('Project not found');
+    }
+
+    Object.assign(project, updateProjectDto);
+
+    const updatedProject = await this.projectRepository.save(project);
+
+    return {
+      success: true,
+      data: updatedProject,
+      message: 'project updated successfully',
+    };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} project`;
+  async remove(id: number, user: User) {
+    const project = await this.projectRepository.findOne({
+      where: {
+        id,
+        owner: {
+          id: user.id,
+        },
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+
+    await this.projectRepository.delete(project.id);
+
+    return {
+      success: true,
+      message: 'project deleted successfully',
+    };
   }
 }
