@@ -2,10 +2,12 @@ import { Project } from 'src/projects/entities/project.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 export enum ProjectMemberRole {
@@ -18,6 +20,16 @@ export enum ProjectMemberRole {
 export class ProjectMember {
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @CreateDateColumn({
+    type: 'timestamptz',
+  })
+  createdAt!: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamptz',
+  })
+  updatedAt!: Date;
 
   @Column({
     type: 'enum',

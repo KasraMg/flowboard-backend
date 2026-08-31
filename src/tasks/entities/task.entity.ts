@@ -52,10 +52,14 @@ export class Task {
   })
   dueDate!: Date | null;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamptz',
+  })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: 'timestamptz',
+  })
   updatedAt!: Date;
 
   @ManyToMany(() => User, (user) => user.assignedTasks)

@@ -47,10 +47,14 @@ export class Project {
   })
   background!: ProjectBackground;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamptz',
+  })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: 'timestamptz',
+  })
   updatedAt!: Date;
 
   isFave!: boolean;

@@ -45,6 +45,8 @@ export class Invitation {
   @JoinColumn({ name: 'invitedById' })
   invitedBy!: User;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamptz',
+  })
   createdAt!: Date;
 }
