@@ -1,5 +1,22 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateUserDto } from './create-user.dto';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
+export class UpdateUserDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  currentPassword?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(8, {
+    message: 'New password must be at least 8 characters',
+  })
+  newPassword?: string;
+}
