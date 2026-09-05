@@ -10,6 +10,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { TaskPriority } from '../entities/task.entity';
 
 export class CreateTaskDto {
   @IsString()
@@ -31,8 +32,8 @@ export class CreateTaskDto {
   backgroundColor?: string;
 
   @IsOptional()
-  @IsIn(['low', 'medium', 'high'])
-  priority?: 'low' | 'medium' | 'high';
+  @IsIn(['Low', 'Medium', 'High', 'Urgent'])
+  priority?: TaskPriority;
 
   @IsOptional()
   @IsDateString()

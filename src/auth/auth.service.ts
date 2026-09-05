@@ -76,7 +76,7 @@ export class AuthService {
     const passwordValid = await bcrypt.compare(password, user.password);
 
     if (!passwordValid) {
-      return null;
+      throw new UnauthorizedException('Password is not currect');
     }
 
     const payload = {

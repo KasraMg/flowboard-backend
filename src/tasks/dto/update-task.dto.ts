@@ -2,13 +2,28 @@ import {
   IsArray,
   IsBoolean,
   IsDateString,
+  IsHexColor,
   IsIn,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { TaskPriority } from '../entities/task.entity';
+import { Type } from 'class-transformer';
+
+class TaskLabelDto {
+  @IsString()
+  @IsNotEmpty()
+  title!: string;
+
+  @IsString()
+  @IsHexColor()
+  backgroundColor!: string;
+}
 
 export class UpdateTaskDto {
   @IsOptional()
@@ -16,6 +31,11 @@ export class UpdateTaskDto {
   @MinLength(3)
   @MaxLength(50)
   title!: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TaskLabelDto)
+  labels!: TaskLabelDto[];
 
   @IsOptional()
   @IsString()
@@ -30,8 +50,8 @@ export class UpdateTaskDto {
   backgroundColor?: string;
 
   @IsOptional()
-  @IsIn(['low', 'medium', 'high'])
-  priority?: 'low' | 'medium' | 'high';
+  @IsIn(['Low', 'Medium', 'High', 'Urgent'])
+  priority?: TaskPriority;
 
   @IsOptional()
   @IsDateString()

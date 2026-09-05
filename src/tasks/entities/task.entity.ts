@@ -13,10 +13,28 @@ import {
   JoinTable,
 } from 'typeorm';
 
+export enum TaskPriority {
+  LOW = 'Low',
+  MEDIUM = 'Medium',
+  HIGH = 'High',
+  URGENT = 'Urgent',
+}
+
+type TaskLabel = {
+  title: string;
+  backgroundColor: string;
+};
+
 @Entity()
 export class Task {
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+  })
+  labels!: TaskLabel[] | null;
 
   @Column()
   title!: string;
@@ -35,10 +53,10 @@ export class Task {
 
   @Column({
     type: 'enum',
-    enum: ['low', 'medium', 'high'],
-    default: 'medium',
+    enum: TaskPriority,
+    default: TaskPriority.MEDIUM,
   })
-  priority!: 'low' | 'medium' | 'high';
+  priority!: TaskPriority;
 
   @Column({
     type: 'int',
