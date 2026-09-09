@@ -52,17 +52,17 @@ export class Task {
   backgroundColor!: string | null;
 
   @Column({
+    type: 'int',
+    default: 0,
+  })
+  position!: number;
+
+  @Column({
     type: 'enum',
     enum: TaskPriority,
     default: TaskPriority.MEDIUM,
   })
   priority!: TaskPriority;
-
-  @Column({
-    type: 'int',
-    default: 0,
-  })
-  position!: number;
 
   @Column({
     type: 'timestamp',

@@ -15,6 +15,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from 'src/users/entities/user.entity';
+import { ReorderTasksDto } from './dto/reorder-task-dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -46,6 +47,21 @@ export class TasksController {
     @Req() req: Express.Request,
   ) {
     return this.tasksService.update(+taskId, updateTaskDto, req.user as User);
+  }
+
+  @Patch('reorder/:projectId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  reorder(
+    @Param('projectId') projectId: number,
+    @Body() reorderTasksDto: ReorderTasksDto,
+    @Req() req: Express.Request,
+  ) {
+    return this.tasksService.reorder(
+      projectId,
+      reorderTasksDto,
+      req.user as User,
+    );
   }
 
   @Delete(':taskId')

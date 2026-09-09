@@ -137,6 +137,9 @@ export class ProjectsService {
       order: {
         columns: {
           position: 'ASC',
+          tasks: {
+            position: 'ASC',
+          },
         },
       },
     });
@@ -166,6 +169,13 @@ export class ProjectsService {
     if (!isOwner && !isMember) {
       throw new NotFoundException('Project not found');
     }
+
+    console.table(
+      project.columns.map((task) => ({
+        id: task.id,
+        title: task.title,
+      })),
+    );
 
     return project;
   }
