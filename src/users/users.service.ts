@@ -111,8 +111,6 @@ export class UsersService {
   }
 
   async updateAvatar(user: User, file: Express.Multer.File) {
-    console.log(user);
-
     if (!file) {
       throw new BadRequestException('Avatar is required');
     }
