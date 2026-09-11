@@ -7,11 +7,15 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { ProjectMember } from 'src/project-members/entities/project-member.entity';
+import { MailModule } from 'src/mail/mail.module';
+import { PasswordResetModule } from 'src/password-reset/password-reset.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, ProjectMember]),
     PassportModule,
+    MailModule,
+    PasswordResetModule,
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     JwtModule.register({
       secret: 'super-secret-key',

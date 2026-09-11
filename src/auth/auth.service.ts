@@ -11,6 +11,8 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ProjectMember } from 'src/project-members/entities/project-member.entity';
+import { PasswordResetService } from 'src/password-reset/password-reset.service';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +23,8 @@ export class AuthService {
     private projectMemberRepository: Repository<ProjectMember>,
 
     private jwtService: JwtService,
+    private readonly passwordResetService: PasswordResetService,
+    private readonly mailService: MailService,
   ) {}
 
   async register(data: { name: string; email: string; password: string }) {
@@ -123,5 +127,58 @@ export class AuthService {
         },
       },
     };
+  }
+
+  async resetPassword(email: string, password: string) {
+    const user = await this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User with this email not found');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user.password = hashedPassword;
+
+    await this.userRepository.save(user);
+
+    return {
+      success: true,
+      message: 'Password reset successfully',
+    };
+  }
+  async forgotPassword(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User with this email not found');
+    }
+
+    const reset = await this.passwordResetService.createNewOtp(email);
+
+    await this.mailService.sendOtpWithEmail(email, reset.otp);
+
+    return {
+      success: true,
+      message: 'Password reset code sent successfully',
+    };
+  }
+
+  async verifyOtp(email: string, otp: string) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User with this email not found');
+    }
+
+    return await this.passwordResetService.verifyOtp(email, otp);
   }
 }

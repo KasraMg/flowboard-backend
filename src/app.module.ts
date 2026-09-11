@@ -11,9 +11,15 @@ import { InvitationsModule } from './invitations/invitations.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ColumnsModule } from './columns/columns.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { MailModule } from './mail/mail.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -25,6 +31,7 @@ import { FavoritesModule } from './favorites/favorites.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    MailModule,
 
     UsersModule,
 

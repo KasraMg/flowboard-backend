@@ -23,6 +23,7 @@ export class DashboardService {
       .createQueryBuilder('projectMember')
       .innerJoinAndSelect('projectMember.project', 'project')
       .leftJoin('project.tasks', 'task')
+      .leftJoinAndSelect('project.owner', 'owner')
       .where('projectMember.userId = :userId', { userId })
       .andWhere('project.status = :status', {
         status: ProjectStatus.ACTIVE,
@@ -36,6 +37,9 @@ export class DashboardService {
         'project.status',
         'project.createdAt',
         'project.updatedAt',
+        'owner.id',
+        'owner.name',
+        'owner.email',
       ])
       .addSelect('COUNT(task.id)', 'totalTasks')
       .addSelect(
@@ -54,6 +58,7 @@ export class DashboardService {
       .setParameter('userId', userId)
       .groupBy('projectMember.id')
       .addGroupBy('project.id')
+      .addGroupBy('owner.id')
       .orderBy('project.createdAt', 'DESC')
       .limit(4)
       .getRawAndEntities();

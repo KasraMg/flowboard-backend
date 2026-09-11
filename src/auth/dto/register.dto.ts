@@ -23,6 +23,6 @@ export class RegisterDto {
   age!: number;
 
   @IsString()
-  @MinLength(8)
+  @MinLength(6)
   password!: string;
 }

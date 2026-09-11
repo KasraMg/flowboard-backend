@@ -53,6 +53,7 @@ export class ProjectsService {
       .createQueryBuilder('project')
       .leftJoin('project.tasks', 'task')
       .innerJoin('project.members', 'member')
+      .leftJoinAndSelect('project.owner', 'owner')
       .where('member.userId = :userId', {
         userId: user.id,
       })
@@ -64,6 +65,9 @@ export class ProjectsService {
         'project.status',
         'project.createdAt',
         'project.updatedAt',
+        'owner.id',
+        'owner.name',
+        'owner.email',
       ])
       .addSelect('COUNT(task.id)', 'totalTasks')
       .addSelect(
@@ -81,6 +85,7 @@ export class ProjectsService {
       )
       .setParameter('userId', user.id)
       .groupBy('project.id')
+      .addGroupBy('owner.id')
       .orderBy('project.createdAt', 'DESC')
       .getRawAndEntities();
 
@@ -140,6 +145,9 @@ export class ProjectsService {
           tasks: {
             position: 'ASC',
           },
+        },
+        members: {
+          createdAt: 'ASC',
         },
       },
     });
