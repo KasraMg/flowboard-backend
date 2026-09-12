@@ -236,10 +236,6 @@ export class TasksService {
   ) {
     const { taskId, targetColumnId, taskIds } = reorderTasksDto;
 
-    // -------------------------
-    // Check project permission
-    // -------------------------
-
     const project = await this.projectRepository.findOne({
       where: {
         id: projectId,
@@ -368,7 +364,6 @@ export class TasksService {
     ) {
       throw new BadRequestException('Invalid task order');
     }
- 
 
     const tasks = await this.taskRepository.find({
       where: taskIds.map((id) => ({

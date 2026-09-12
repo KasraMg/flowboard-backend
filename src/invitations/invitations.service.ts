@@ -17,6 +17,7 @@ import {
   ProjectMember,
   ProjectMemberRole,
 } from 'src/project-members/entities/project-member.entity';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class InvitationsService {
@@ -29,6 +30,8 @@ export class InvitationsService {
     private userRepository: Repository<User>,
 
     private dataSource: DataSource,
+
+    private readonly mailService: MailService,
   ) {}
 
   async create(createInvitationDto: CreateInvitationDto, user: User) {
@@ -78,12 +81,16 @@ export class InvitationsService {
       status: InvitationStatus.PENDING,
     });
 
+    await this.mailService.sendProjectInviteEmail(
+      createInvitationDto.email,
+      project,
+    );
+
     await this.invitationRepository.save(invitation);
 
     return {
       message: 'Invitation created successfully',
       success: true,
-      data: invitation,
     };
   }
 

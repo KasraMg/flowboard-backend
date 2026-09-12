@@ -1,9 +1,11 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { Resend } from 'resend';
+import { Project } from 'src/projects/entities/project.entity';
 
 @Injectable()
 export class MailService {
   private readonly resend = new Resend(process.env.RESEND_API_KEY);
+  private readonly frontUrl = process.env.FRONTEND_UR;
 
   async sendOtpWithEmail(to: string, otp: string) {
     const { data, error } = await this.resend.emails.send({
@@ -48,6 +50,102 @@ export class MailService {
     if (error) {
       throw new ServiceUnavailableException(
         'Unable to send the verification email. Please try again later.',
+      );
+    }
+
+    return data;
+  }
+
+  async sendProjectInviteEmail(to: string, project: Project) {
+    const { data, error } = await this.resend.emails.send({
+      from: 'FlowBoard <onboarding@resend.dev>',
+      to,
+      subject: `FlowBoard - You've been invited to ${project.title}`,
+      html: `
+      <div
+        style="
+          font-family: Arial, sans-serif;
+          max-width: 500px;
+          margin: 0 auto;
+          padding: 10px 24px;
+          color: #18181b;
+        "
+      >
+        <h2 style="margin-bottom: 8px;">
+          You've been invited to a project 🎉
+        </h2>
+
+        <p style="color: #52525b; margin-top: 0;">
+          You have been invited to join a project on FlowBoard.
+        </p>
+
+        <div
+          style="
+            margin: 24px 0;
+            padding: 20px;
+            background: #f4f4f5;
+            border-radius: 10px;
+          "
+        >
+          <h3 style="margin: 0 0 10px;">
+            ${project.title}
+          </h3>
+
+          ${
+            project.description
+              ? `
+                <p
+                  style="
+                    margin: 0;
+                    color: #52525b;
+                    line-height: 1.6;
+                  "
+                >
+                  ${project.description}
+                </p>
+              `
+              : ''
+          }
+        </div>
+
+        <p style="color: #52525b;">
+          You've been added as a member of this project. 
+          Open FlowBoard to view the project and start collaborating with your team.
+        </p>
+
+        <div style="margin: 28px 0;">
+          <a
+            href="${this.frontUrl}"
+            style="
+              display: inline-block;
+              padding: 12px 20px;
+              background: #18181b;
+              color: #ffffff;
+              text-decoration: none;
+              border-radius: 8px;
+              font-weight: 600;
+            "
+          >
+            Open FlowBoard
+          </a>
+        </div>
+
+        <p
+          style="
+            margin-top: 32px;
+            color: #71717a;
+            font-size: 13px;
+          "
+        >
+          — FlowBoard Team
+        </p>
+      </div>
+    `,
+    });
+
+    if (error) {
+      throw new ServiceUnavailableException(
+        'Unable to send the project invitation email. Please try again later.',
       );
     }
 
