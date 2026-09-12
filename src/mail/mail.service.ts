@@ -1,6 +1,7 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { Resend } from 'resend';
 import { Project } from 'src/projects/entities/project.entity';
+import { Task } from 'src/tasks/entities/task.entity';
 
 @Injectable()
 export class MailService {
@@ -146,6 +147,103 @@ export class MailService {
     if (error) {
       throw new ServiceUnavailableException(
         'Unable to send the project invitation email. Please try again later.',
+      );
+    }
+
+    return data;
+  }
+
+  async sendTaskAssignmentEmail(to: string, task: Task) {
+    const { data, error } = await this.resend.emails.send({
+      from: 'FlowBoard <onboarding@resend.dev>',
+      to,
+      subject: `FlowBoard - You've been assigned a task`,
+      html: `
+      <div
+        style="
+          font-family: Arial, sans-serif;
+          max-width: 500px;
+          margin: 0 auto;
+          padding: 24px;
+          color: #18181b;
+        "
+      >
+        <h2 style="margin-bottom: 8px;">
+          You've been assigned a task 📋
+        </h2>
+
+        <p style="color: #52525b;">
+          A task has been assigned to you on FlowBoard.
+        </p>
+
+        <div
+          style="
+            margin: 24px 0;
+            padding: 20px;
+            background: #f4f4f5;
+            border-radius: 10px;
+          "
+        >
+          <h3 style="margin: 0 0 10px;">
+            ${task.title}
+          </h3>
+
+          ${
+            task.description
+              ? `
+                <p
+                  style="
+                    margin: 0;
+                    color: #52525b;
+                    line-height: 1.6;
+                  "
+                >
+                  ${task.description}
+                </p>
+              `
+              : ''
+          }
+        </div>
+
+        <p style="color: #52525b;">
+          You can open FlowBoard to view the task and start working on it.
+        </p>
+
+        <div style="margin: 28px 0;">
+          <a
+            href="${process.env.FRONTEND_URL}"
+            style="
+              display: inline-block;
+              padding: 12px 20px;
+              background: #18181b;
+              color: #ffffff;
+              text-decoration: none;
+              border-radius: 8px;
+              font-weight: 600;
+            "
+          >
+            Open FlowBoard
+          </a>
+        </div>
+
+        <p
+          style="
+            margin-top: 32px;
+            color: #71717a;
+            font-size: 13px;
+          "
+        >
+          — FlowBoard Team
+        </p>
+      </div>
+    `,
+    });
+
+    if (error) {
+      console.error('Resend API Error:', error);
+
+      throw new ServiceUnavailableException(
+        'Unable to send the task assignment email. Please try again later.',
       );
     }
 

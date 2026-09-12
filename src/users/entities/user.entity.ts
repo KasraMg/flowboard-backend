@@ -30,6 +30,9 @@ export class User {
   @Column({ select: false })
   password!: string;
 
+  @Column({ default: true })
+  emailNotification!: boolean;
+
   @ManyToMany(() => Task, (task) => task.assignees)
   assignedTasks!: Task[];
 

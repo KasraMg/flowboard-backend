@@ -14,6 +14,7 @@ import { Project } from 'src/projects/entities/project.entity';
 import { Column } from 'src/columns/entities/column.entity';
 import { ProjectMember } from 'src/project-members/entities/project-member.entity';
 import { ReorderTasksDto } from './dto/reorder-task-dto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class TasksService {
@@ -28,6 +29,8 @@ export class TasksService {
     private userRepository: Repository<User>,
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>,
+
+    private readonly mailService: MailService,
   ) {}
 
   async create(createTaskDto: CreateTaskDto, user: User) {
@@ -135,6 +138,7 @@ export class TasksService {
           owner: true,
         },
         creator: true,
+        assignees: true,
       },
     });
 
@@ -142,18 +146,11 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    // const isOwner = task.project.owner.id === user.id;
-    // const isCreator = task.creator?.id === user.id;
-
-    // if (!isOwner && !isCreator) {
-    //   throw new ForbiddenException(
-    //     'You do not have permission to edit this task',
-    //   );
-    // }
-
     const { assigneeIds, ...taskData } = updateTaskDto;
 
     Object.assign(task, taskData);
+
+    let newAssignees: User[] = [];
 
     if (assigneeIds !== undefined && assigneeIds.length > 0) {
       const assignees = await this.userRepository.find({
@@ -164,10 +161,29 @@ export class TasksService {
         throw new NotFoundException('One or more assignees not found');
       }
 
+      const currentAssigneeIds = task.assignees.map((assignee) => assignee.id);
+
+      newAssignees = assignees.filter(
+        (assignee) => !currentAssigneeIds.includes(assignee.id),
+      );
+
       task.assignees = assignees;
-    } else task.assignees = [];
+    } else if (assigneeIds !== undefined) {
+      task.assignees = [];
+    }
 
     const updatedTask = await this.taskRepository.save(task);
+
+    for (const assignee of newAssignees) {
+      if (!assignee.emailNotification) {
+        continue;
+      }
+
+      await this.mailService.sendTaskAssignmentEmail(
+        assignee.email,
+        updatedTask,
+      );
+    }
 
     return {
       success: true,
