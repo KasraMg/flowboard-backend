@@ -6,9 +6,20 @@ import { User } from './entities/user.entity';
 import { Project } from 'src/projects/entities/project.entity';
 import { ProjectMember } from 'src/project-members/entities/project-member.entity';
 import { Favorite } from 'src/favorites/entities/favorite.entity';
+import { Invitation } from 'src/invitations/entities/invitation.entity';
+import { Notification } from 'src/notifications/entities/notification.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Project, ProjectMember, Favorite])],
+  imports: [
+    TypeOrmModule.forFeature([
+      User,
+      Project,
+      ProjectMember,
+      Favorite,
+      Invitation,
+      Notification,
+    ]),
+  ],
   controllers: [UsersController],
   providers: [UsersService],
 })

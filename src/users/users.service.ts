@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
@@ -12,6 +10,11 @@ import * as bcrypt from 'bcrypt';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
+import { Notification } from 'src/notifications/entities/notification.entity';
+import {
+  Invitation,
+  InvitationStatus,
+} from 'src/invitations/entities/invitation.entity';
 @Injectable()
 export class UsersService {
   constructor(
@@ -21,11 +24,16 @@ export class UsersService {
     private projectRepository: Repository<Project>,
     @InjectRepository(Favorite)
     private favoriteRepository: Repository<Favorite>,
+    @InjectRepository(Notification)
+    private notificationRepository: Repository<Notification>,
+    @InjectRepository(Invitation)
+    private invitationRepository: Repository<Invitation>,
   ) {}
 
   getUsers() {
     return this.userRepository.find();
   }
+
   getUser(id: number) {
     return this.userRepository.findOne({
       where: {
@@ -58,10 +66,27 @@ export class UsersService {
       },
     });
 
+    const unreadNotifications = await this.notificationRepository.count({
+      where: {
+        user: { id: user.id },
+        isRead: false,
+      },
+    });
+
+    const pendingInvitations = await this.invitationRepository.count({
+      where: {
+        invitedUser: { id: user.id },
+        status: InvitationStatus.PENDING,
+      },
+    });
+
+    const notificationCount = unreadNotifications + pendingInvitations;
+
     return {
       data: {
-        projects: projects,
-        favorites: favorites,
+        projects,
+        favorites,
+        notificationCount,
       },
       success: true,
     };
