@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -36,11 +37,18 @@ export class NotificationsController {
     return this.notificationsService.findAll(req.user as User);
   }
 
+  @Patch('read-all')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  readAll(@Req() req: Express.Request) {
+    return this.notificationsService.readAll(req.user as User);
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  update(@Param('id') id: string, @Req() req: Express.Request) {
-    return this.notificationsService.update(req.user as User, +id);
+  update(@Param('id', ParseIntPipe) id: number, @Req() req: Express.Request) {
+    return this.notificationsService.update(req.user as User, id);
   }
 
   @Delete(':id')

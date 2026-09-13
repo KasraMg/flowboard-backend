@@ -64,9 +64,30 @@ export class NotificationsService {
     };
   }
 
-  remove(id: number) {
-    return this.notificationRepository.delete({
+  async readAll(user: User) {
+    await this.notificationRepository.update(
+      {
+        user: {
+          id: user.id,
+        },
+        isRead: false,
+      },
+      {
+        isRead: true,
+      },
+    );
+
+    return {
+      success: true,
+    };
+  }
+
+  async remove(id: number) {
+    await this.notificationRepository.delete({
       id,
     });
+    return {
+      message: 'Notification deleted successfully',
+    };
   }
 }
