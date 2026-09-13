@@ -15,6 +15,8 @@ import { Column } from 'src/columns/entities/column.entity';
 import { ProjectMember } from 'src/project-members/entities/project-member.entity';
 import { ReorderTasksDto } from './dto/reorder-task-dto';
 import { MailService } from 'src/mail/mail.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { NotificationType } from 'src/notifications/entities/notification.entity';
 
 @Injectable()
 export class TasksService {
@@ -31,6 +33,7 @@ export class TasksService {
     private projectMemberRepository: Repository<ProjectMember>,
 
     private readonly mailService: MailService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(createTaskDto: CreateTaskDto, user: User) {
@@ -137,6 +140,9 @@ export class TasksService {
         project: {
           owner: true,
         },
+        column: {
+          project: true,
+        },
         creator: true,
         assignees: true,
       },
@@ -175,6 +181,11 @@ export class TasksService {
     const updatedTask = await this.taskRepository.save(task);
 
     for (const assignee of newAssignees) {
+      await this.notificationsService.create(assignee.id, {
+        message: `You were assigned to the task "${updatedTask.title}"`,
+        type: NotificationType.TASK_ASSIGNMENT,
+        subject: task.column.project.title,
+      });
       if (!assignee.emailNotification) {
         continue;
       }

@@ -95,7 +95,7 @@ export class InvitationsService {
   }
 
   async findAll(user: User) {
-    const invitations = await this.invitationRepository.find({
+    return await this.invitationRepository.find({
       where: {
         invitedUser: {
           id: user.id,
@@ -107,11 +107,6 @@ export class InvitationsService {
         invitedBy: true,
       },
     });
-
-    return {
-      success: true,
-      data: invitations,
-    };
   }
 
   async changeStatus(

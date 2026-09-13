@@ -1,4 +1,4 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Resend } from 'resend';
 import { Project } from 'src/projects/entities/project.entity';
 import { Task } from 'src/tasks/entities/task.entity';
@@ -6,7 +6,7 @@ import { Task } from 'src/tasks/entities/task.entity';
 @Injectable()
 export class MailService {
   private readonly resend = new Resend(process.env.RESEND_API_KEY);
-  private readonly frontUrl = process.env.FRONTEND_UR;
+  private readonly frontUrl = process.env.FRONTEND_URL;
 
   async sendOtpWithEmail(to: string, otp: string) {
     const { data, error } = await this.resend.emails.send({
@@ -49,9 +49,8 @@ export class MailService {
     });
 
     if (error) {
-      throw new ServiceUnavailableException(
-        'Unable to send the verification email. Please try again later.',
-      );
+      console.error('Resend API Error:', error);
+      return null;
     }
 
     return data;
@@ -116,7 +115,7 @@ export class MailService {
 
         <div style="margin: 28px 0;">
           <a
-            href="${this.frontUrl}"
+            href="${process.env.FRONTEND_URL}"
             style="
               display: inline-block;
               padding: 12px 20px;
@@ -145,9 +144,8 @@ export class MailService {
     });
 
     if (error) {
-      throw new ServiceUnavailableException(
-        'Unable to send the project invitation email. Please try again later.',
-      );
+      console.error('Resend API Error:', error);
+      return null;
     }
 
     return data;
@@ -241,10 +239,7 @@ export class MailService {
 
     if (error) {
       console.error('Resend API Error:', error);
-
-      throw new ServiceUnavailableException(
-        'Unable to send the task assignment email. Please try again later.',
-      );
+      return null;
     }
 
     return data;

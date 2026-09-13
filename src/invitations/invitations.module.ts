@@ -11,5 +11,6 @@ import { MailModule } from 'src/mail/mail.module';
   imports: [TypeOrmModule.forFeature([Invitation, Project, User]), MailModule],
   controllers: [InvitationsController],
   providers: [InvitationsService],
+  exports: [InvitationsService],
 })
 export class InvitationsModule {}

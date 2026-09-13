@@ -1,4 +1,5 @@
 import { Favorite } from 'src/favorites/entities/favorite.entity';
+import { Notification } from 'src/notifications/entities/notification.entity';
 import { ProjectMember } from 'src/project-members/entities/project-member.entity';
 import { Project } from 'src/projects/entities/project.entity';
 import { Task } from 'src/tasks/entities/task.entity';
@@ -47,4 +48,9 @@ export class User {
 
   @OneToMany(() => Task, (task) => task.creator)
   createdTasks!: Task[];
+
+  @OneToMany(() => Notification, (notif) => notif.user, {
+    onDelete: 'CASCADE',
+  })
+  notifications: Notification[];
 }

@@ -13,6 +13,7 @@ import { ColumnsModule } from './columns/columns.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { MailModule } from './mail/mail.module';
 import { ConfigModule } from '@nestjs/config';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -50,6 +51,8 @@ import { ConfigModule } from '@nestjs/config';
     ColumnsModule,
 
     FavoritesModule,
+
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
