@@ -34,18 +34,6 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  getUser(id: number) {
-    return this.userRepository.findOne({
-      where: {
-        id,
-      },
-      relations: {
-        projects: true,
-        assignedTasks: true,
-      },
-    });
-  }
-
   async getSidebar(user: User) {
     const projects = await this.projectRepository
       .createQueryBuilder('project')
@@ -83,12 +71,9 @@ export class UsersService {
     const notificationCount = unreadNotifications + pendingInvitations;
 
     return {
-      data: {
-        projects,
-        favorites,
-        notificationCount,
-      },
-      success: true,
+      projects,
+      favorites,
+      notificationCount,
     };
   }
 
@@ -131,7 +116,6 @@ export class UsersService {
 
     return {
       message: 'Account updated successfully',
-      success: true,
     };
   }
 
@@ -182,7 +166,6 @@ export class UsersService {
 
       return {
         message: 'Avatar updated successfully',
-        success: true,
         avatar: avatarPath,
       };
     } catch (error) {

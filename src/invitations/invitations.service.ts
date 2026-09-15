@@ -90,7 +90,6 @@ export class InvitationsService {
 
     return {
       message: 'Invitation created successfully',
-      success: true,
     };
   }
 
@@ -142,7 +141,6 @@ export class InvitationsService {
 
       return {
         message: 'Invitation rejected successfully',
-        success: true,
       };
     }
 
@@ -183,7 +181,6 @@ export class InvitationsService {
 
       return {
         message: 'Invitation accepted successfully',
-        success: true,
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();

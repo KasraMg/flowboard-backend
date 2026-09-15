@@ -57,7 +57,6 @@ export class AuthService {
 
     return {
       message: 'User registered successfully',
-      success: true,
       user: {
         id: savedUser.id,
         name: savedUser.name,
@@ -89,44 +88,17 @@ export class AuthService {
     };
 
     return {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      success: true,
       access_token: this.jwtService.sign(payload),
       message: 'User logined successfully',
     };
   }
 
   async findMe(userId: number) {
-    const user = await this.userRepository.findOne({
+    return await this.userRepository.findOne({
       where: {
         id: userId,
       },
     });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const totalProjects = await this.projectMemberRepository.count({
-      where: {
-        user: {
-          id: userId,
-        },
-      },
-    });
-
-    return {
-      success: true,
-      data: {
-        user,
-        stats: {
-          totalProjects,
-          totalTasks: 0,
-          completedTasks: 0,
-          incompleteTasks: 0,
-        },
-      },
-    };
   }
 
   async resetPassword(email: string, password: string) {
@@ -147,7 +119,6 @@ export class AuthService {
     await this.userRepository.save(user);
 
     return {
-      success: true,
       message: 'Password reset successfully',
     };
   }
@@ -165,7 +136,6 @@ export class AuthService {
     await this.mailService.sendOtpWithEmail(email, reset.otp);
 
     return {
-      success: true,
       message: 'Password reset code sent successfully',
     };
   }

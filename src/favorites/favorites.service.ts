@@ -41,7 +41,6 @@ export class FavoritesService {
       await this.favoriteRepository.remove(isFavorite);
       return {
         message: 'favorite deleted successfully',
-        success: true,
       };
     } else {
       const favorite = this.favoriteRepository.create({
@@ -52,23 +51,18 @@ export class FavoritesService {
       const savedFavorite = await this.favoriteRepository.save(favorite);
       return {
         message: 'favorite created successfully',
-        success: true,
-        data: savedFavorite,
+        favorite: savedFavorite,
       };
     }
   }
 
   async findAll(user: User) {
-    const favorites = await this.favoriteRepository.find({
+    return this.favoriteRepository.find({
       where: {
         user: {
           id: user.id,
         },
       },
     });
-    return {
-      success: true,
-      data: favorites,
-    };
   }
 }

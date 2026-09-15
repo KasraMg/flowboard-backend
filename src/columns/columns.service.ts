@@ -51,8 +51,7 @@ export class ColumnsService {
 
     return {
       message: 'column created successfully',
-      success: true,
-      data: savedColumn,
+      column: savedColumn,
     };
   }
 
@@ -91,8 +90,7 @@ export class ColumnsService {
 
     return {
       message: 'Column updated successfully',
-      success: true,
-      data: updatedColumn,
+      column: updatedColumn,
     };
   }
 
@@ -164,7 +162,6 @@ export class ColumnsService {
     await this.columnRepository.save(reorderedColumns);
 
     return {
-      success: true,
       message: 'Columns reordered successfully',
     };
   }
@@ -187,7 +184,6 @@ export class ColumnsService {
 
     await this.columnRepository.delete(id);
     return {
-      success: true,
       message: 'Column removed successfully',
     };
   }

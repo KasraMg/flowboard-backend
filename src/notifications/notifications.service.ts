@@ -59,9 +59,7 @@ export class NotificationsService {
 
     await this.notificationRepository.save(notification);
 
-    return {
-      success: true,
-    };
+    return {};
   }
 
   async readAll(user: User) {
@@ -77,9 +75,7 @@ export class NotificationsService {
       },
     );
 
-    return {
-      success: true,
-    };
+    return {};
   }
 
   async remove(id: number) {

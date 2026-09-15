@@ -270,26 +270,22 @@ export class DashboardService {
     const incompleteTasks = totalTasks - completedTasks;
 
     return {
-      success: true,
+      stats: {
+        totalProjects,
+        totalTasks,
+        completedTasks,
+        incompleteTasks,
 
-      data: {
-        stats: {
-          totalProjects,
-          totalTasks,
-          completedTasks,
-          incompleteTasks,
-
-          trends: {
-            totalProjects: projectTrend,
-            totalTasks: taskTrend,
-            completedTasks: completedTrend,
-          },
+        trends: {
+          totalProjects: projectTrend,
+          totalTasks: taskTrend,
+          completedTasks: completedTrend,
         },
-
-        recentProjects: recentProjectsData,
-
-        recentTasks,
       },
+
+      recentProjects: recentProjectsData,
+
+      recentTasks,
     };
   }
 }

@@ -125,8 +125,7 @@ export class TasksService {
     const taskSaved = await this.taskRepository.save(task);
 
     return {
-      success: true,
-      data: taskSaved,
+      task: taskSaved,
       message: 'task saved successfully',
     };
   }
@@ -197,8 +196,7 @@ export class TasksService {
     }
 
     return {
-      success: true,
-      data: updatedTask,
+      task: updatedTask,
       message: 'Task updated successfully',
     };
   }
@@ -232,7 +230,6 @@ export class TasksService {
     await this.taskRepository.delete(taskId);
 
     return {
-      success: true,
       message: 'Task removed successfully',
     };
   }
@@ -291,10 +288,6 @@ export class TasksService {
       );
     }
 
-    // -------------------------
-    // Validate task
-    // -------------------------
-
     const task = await this.taskRepository.findOne({
       where: {
         id: taskId,
@@ -313,10 +306,6 @@ export class TasksService {
 
     const sourceColumnId = task.column.id;
 
-    // -------------------------
-    // Validate target column
-    // -------------------------
-
     const targetColumn = await this.columnRepository.findOne({
       where: {
         id: targetColumnId,
@@ -331,11 +320,6 @@ export class TasksService {
         'Target column does not belong to this project',
       );
     }
-
-    // -------------------------
-    // Validate taskIds
-    // -------------------------
-
     if (!taskIds.length) {
       throw new BadRequestException('Task order cannot be empty');
     }
@@ -349,10 +333,6 @@ export class TasksService {
     if (new Set(taskIds).size !== taskIds.length) {
       throw new BadRequestException('Duplicate task IDs');
     }
-
-    // -------------------------
-    // Get target tasks
-    // -------------------------
 
     const targetTasks = await this.taskRepository.find({
       where: {
@@ -369,16 +349,12 @@ export class TasksService {
       targetTasks.map((targetTask) => targetTask.id),
     );
 
-    // اگر task از ستون دیگری آمده،
-    // طبیعی است که هنوز داخل targetTasks نباشد.
     const isMovingBetweenColumns = sourceColumnId !== targetColumnId;
 
     if (!isMovingBetweenColumns && !targetTaskIds.has(taskId)) {
       throw new BadRequestException('Task does not belong to target column');
     }
 
-    // تمام taskهای موجود در ستون مقصد
-    // + task منتقل‌شده اگر از ستون دیگری آمده باشد
     const expectedTaskIds = new Set(targetTaskIds);
 
     if (isMovingBetweenColumns) {
@@ -456,7 +432,6 @@ export class TasksService {
     }
 
     return {
-      success: true,
       message: 'Task reordered successfully',
     };
   }

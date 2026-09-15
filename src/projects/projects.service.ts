@@ -43,8 +43,7 @@ export class ProjectsService {
 
     return {
       message: 'project created successfully',
-      success: true,
-      data: savedProject,
+      project: savedProject,
     };
   }
 
@@ -178,13 +177,6 @@ export class ProjectsService {
       throw new NotFoundException('Project not found');
     }
 
-    console.table(
-      project.columns.map((task) => ({
-        id: task.id,
-        title: task.title,
-      })),
-    );
-
     return project;
   }
 
@@ -210,8 +202,7 @@ export class ProjectsService {
     const updatedProject = await this.projectRepository.save(project);
 
     return {
-      success: true,
-      data: updatedProject,
+      project: updatedProject,
       message: 'project updated successfully',
     };
   }
@@ -233,7 +224,6 @@ export class ProjectsService {
     await this.projectRepository.delete(project.id);
 
     return {
-      success: true,
       message: 'project deleted successfully',
     };
   }

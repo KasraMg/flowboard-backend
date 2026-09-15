@@ -66,8 +66,6 @@ export class PasswordResetService {
     obj.used = true;
     await this.passwordResetRepository.save(obj);
 
-    return {
-      success: true,
-    };
+    return {};
   }
 }

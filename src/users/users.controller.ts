@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  Param,
-  ParseIntPipe,
   Patch,
   Put,
   Req,
@@ -34,13 +32,6 @@ export class UsersController {
   @ApiBearerAuth()
   getSidebar(@Req() req: Express.Request) {
     return this.userService.getSidebar(req.user as User);
-  }
-
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  getUser(@Param('id', ParseIntPipe) id: number) {
-    return this.userService.getUser(id);
   }
 
   @Put()

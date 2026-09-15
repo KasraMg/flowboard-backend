@@ -51,7 +51,6 @@ export class ProjectMembersService {
 
     await this.projectMemberRepository.delete(projectMember.id);
     return {
-      success: true,
       message: 'User removed successfully',
     };
   }
@@ -79,7 +78,6 @@ export class ProjectMembersService {
     }
 
     return {
-      success: true,
       projectsMember,
     };
   }
