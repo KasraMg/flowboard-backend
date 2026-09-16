@@ -11,12 +11,15 @@ import {
 } from './entities/project-member.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
+import { AuthorizationService } from 'src/common/authorization.service';
 
 @Injectable()
 export class ProjectMembersService {
   constructor(
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>,
+
+    private readonly authorizationService: AuthorizationService,
   ) {}
 
   async removeUser(projectId: number, userId: number, user: User) {
@@ -29,21 +32,14 @@ export class ProjectMembersService {
           id: userId,
         },
       },
-      relations: {
-        project: {
-          owner: true,
-        },
-      },
     });
 
     if (!projectMember) {
       throw new NotFoundException('member not found');
     }
-    if (projectMember.project.owner.id !== user.id) {
-      throw new ConflictException(
-        'You are not allowed to remove project users',
-      );
-    }
+    await this.authorizationService.requireRoles(user, projectId, [
+      ProjectMemberRole.OWNER,
+    ]);
 
     if (projectMember.role == ProjectMemberRole.OWNER) {
       throw new ConflictException('owner cannot be removed');

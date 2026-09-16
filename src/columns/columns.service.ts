@@ -12,6 +12,8 @@ import { Project } from 'src/projects/entities/project.entity';
 import { Repository } from 'typeorm';
 import { Column } from './entities/column.entity';
 import { ReorderColumnsDto } from './dto/reorder-column-dto';
+import { AuthorizationService } from 'src/common/authorization.service';
+import { ProjectMemberRole } from 'src/project-members/entities/project-member.entity';
 
 @Injectable()
 export class ColumnsService {
@@ -21,6 +23,8 @@ export class ColumnsService {
 
     @InjectRepository(Column)
     private columnRepository: Repository<Column>,
+
+    private readonly authorizationService: AuthorizationService,
   ) {}
 
   async create(
@@ -74,15 +78,11 @@ export class ColumnsService {
       throw new NotFoundException('Column not found');
     }
 
-    const isOwner = column.project.owner.id === user.id;
-
-    const isMember = column.project.members.some(
-      (member) => member.user.id === user.id,
-    );
-
-    if (!isOwner && !isMember) {
-      throw new NotFoundException('Column not found');
-    }
+    await this.authorizationService.requireRoles(user, column.project.id, [
+      ProjectMemberRole.OWNER,
+      ProjectMemberRole.ADMIN,
+      ProjectMemberRole.MEMBER,
+    ]);
 
     Object.assign(column, updateColumnDto);
 
@@ -117,17 +117,11 @@ export class ColumnsService {
       throw new ForbiddenException('Project not found');
     }
 
-    const isOwner = project.owner.id === user.id;
-
-    const isMember = project.members.some(
-      (member) => member.user.id === user.id,
-    );
-
-    if (!isOwner && !isMember) {
-      throw new ForbiddenException(
-        'You do not have permission to reorder columns',
-      );
-    }
+    await this.authorizationService.requireRoles(user, project.id, [
+      ProjectMemberRole.OWNER,
+      ProjectMemberRole.ADMIN,
+      ProjectMemberRole.MEMBER,
+    ]);
 
     const columns = await this.columnRepository.find({
       where: {
@@ -171,8 +165,8 @@ export class ColumnsService {
       where: {
         id,
         project: {
-          owner: {
-            id: user.id,
+          members: {
+            user: { id: user.id },
           },
         },
       },

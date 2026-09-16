@@ -9,6 +9,7 @@ import { PassportModule } from '@nestjs/passport';
 import { ProjectMember } from 'src/project-members/entities/project-member.entity';
 import { MailModule } from 'src/mail/mail.module';
 import { PasswordResetModule } from 'src/password-reset/password-reset.module';
+import { AuthorizationService } from 'src/common/authorization.service';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { PasswordResetModule } from 'src/password-reset/password-reset.module';
     PassportModule,
     MailModule,
     PasswordResetModule,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     JwtModule.register({
       secret: 'super-secret-key',
       signOptions: {
@@ -24,7 +25,11 @@ import { PasswordResetModule } from 'src/password-reset/password-reset.module';
       },
     }),
   ],
+
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+
+  providers: [AuthService, JwtStrategy, AuthorizationService],
+
+  exports: [AuthorizationService],
 })
 export class AuthModule {}

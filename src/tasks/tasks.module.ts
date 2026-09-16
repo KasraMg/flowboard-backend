@@ -9,12 +9,14 @@ import { Project } from 'src/projects/entities/project.entity';
 import { ProjectMember } from 'src/project-members/entities/project-member.entity';
 import { MailModule } from 'src/mail/mail.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Task, User, Column, Project, ProjectMember]),
     MailModule,
     NotificationsModule,
+    AuthModule,
   ],
   controllers: [TasksController],
   providers: [TasksService],

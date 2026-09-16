@@ -4,9 +4,10 @@ import { ColumnsController } from './columns.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Column } from './entities/column.entity';
 import { Project } from 'src/projects/entities/project.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Column, Project])],
+  imports: [TypeOrmModule.forFeature([Column, Project]), AuthModule],
   controllers: [ColumnsController],
   providers: [ColumnsService],
 })

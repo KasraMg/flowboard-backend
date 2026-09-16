@@ -12,11 +12,15 @@ import { In, Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Project } from 'src/projects/entities/project.entity';
 import { Column } from 'src/columns/entities/column.entity';
-import { ProjectMember } from 'src/project-members/entities/project-member.entity';
+import {
+  ProjectMember,
+  ProjectMemberRole,
+} from 'src/project-members/entities/project-member.entity';
 import { ReorderTasksDto } from './dto/reorder-task-dto';
 import { MailService } from 'src/mail/mail.service';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { NotificationType } from 'src/notifications/entities/notification.entity';
+import { AuthorizationService } from 'src/common/authorization.service';
 
 @Injectable()
 export class TasksService {
@@ -34,6 +38,7 @@ export class TasksService {
 
     private readonly mailService: MailService,
     private readonly notificationsService: NotificationsService,
+    private readonly authorizationService: AuthorizationService,
   ) {}
 
   async create(createTaskDto: CreateTaskDto, user: User) {
@@ -150,6 +155,11 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException('Task not found');
     }
+    await this.authorizationService.requireRoles(user, task.project.id, [
+      ProjectMemberRole.OWNER,
+      ProjectMemberRole.ADMIN,
+      ProjectMemberRole.MEMBER,
+    ]);
 
     const { assigneeIds, ...taskData } = updateTaskDto;
 
@@ -264,29 +274,17 @@ export class TasksService {
       where: {
         id: projectId,
       },
-      relations: {
-        members: {
-          user: true,
-        },
-        owner: true,
-      },
     });
 
     if (!project) {
-      throw new ForbiddenException('Project not found');
+      throw new NotFoundException('Project not found');
     }
 
-    const isOwner = project.owner.id === user.id;
-
-    const isMember = project.members.some(
-      (member) => member.user.id === user.id,
-    );
-
-    if (!isOwner && !isMember) {
-      throw new ForbiddenException(
-        'You do not have permission to reorder tasks',
-      );
-    }
+    await this.authorizationService.requireRoles(user, projectId, [
+      ProjectMemberRole.OWNER,
+      ProjectMemberRole.ADMIN,
+      ProjectMemberRole.MEMBER,
+    ]);
 
     const task = await this.taskRepository.findOne({
       where: {
@@ -320,6 +318,7 @@ export class TasksService {
         'Target column does not belong to this project',
       );
     }
+
     if (!taskIds.length) {
       throw new BadRequestException('Task order cannot be empty');
     }
@@ -383,10 +382,6 @@ export class TasksService {
       );
     }
 
-    // -------------------------
-    // Move task to target column
-    // -------------------------
-
     const reorderedTasks = taskIds.map((id, index) => {
       const currentTask = tasks.find((item) => item.id === id);
 
@@ -404,10 +399,6 @@ export class TasksService {
     });
 
     await this.taskRepository.save(reorderedTasks);
-
-    // -------------------------
-    // Reorder source column
-    // -------------------------
 
     if (isMovingBetweenColumns) {
       const sourceTasks = await this.taskRepository.find({

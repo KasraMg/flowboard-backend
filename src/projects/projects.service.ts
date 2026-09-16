@@ -12,6 +12,7 @@ import {
   ProjectMemberRole,
 } from 'src/project-members/entities/project-member.entity';
 import { Favorite } from 'src/favorites/entities/favorite.entity';
+import { AuthorizationService } from 'src/common/authorization.service';
 
 @Injectable()
 export class ProjectsService {
@@ -24,6 +25,8 @@ export class ProjectsService {
 
     @InjectRepository(Favorite)
     private favoriterRepository: Repository<Favorite>,
+
+    private readonly authorizationService: AuthorizationService,
   ) {}
 
   async create(createProjectDto: CreateProjectDto, user: User) {
@@ -184,6 +187,9 @@ export class ProjectsService {
     const project = await this.projectRepository.findOne({
       where: {
         id,
+        owner: {
+          id: user.id,
+        },
       },
       relations: {
         owner: true,
@@ -191,9 +197,6 @@ export class ProjectsService {
     });
 
     if (!project) {
-      throw new NotFoundException('Project not found');
-    }
-    if (project.owner.id !== user.id) {
       throw new NotFoundException('Project not found');
     }
 
