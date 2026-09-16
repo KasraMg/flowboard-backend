@@ -10,7 +10,6 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
-import { ProjectMember } from 'src/project-members/entities/project-member.entity';
 import { PasswordResetService } from 'src/password-reset/password-reset.service';
 import { MailService } from 'src/mail/mail.service';
 
@@ -19,8 +18,6 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(ProjectMember)
-    private projectMemberRepository: Repository<ProjectMember>,
 
     private jwtService: JwtService,
     private readonly passwordResetService: PasswordResetService,
