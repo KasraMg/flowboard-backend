@@ -6,9 +6,28 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { join } from 'path';
 import { HttpExceptionFilter } from './common/filter/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.use(helmet());
+
+  const allowedOrigins = [
+    process.env.LOCAL_FRONTEND_URL,
+    process.env.FRONTEND_URL,
+  ].filter(Boolean);
+
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  });
 
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads/',
@@ -17,6 +36,8 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
     }),
   );
 
@@ -31,14 +52,11 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  app.enableCors({
-    origin: 'http://localhost:3000',
-    credentials: true,
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    const document = SwaggerModule.createDocument(app, config);
 
-  const document = SwaggerModule.createDocument(app, config);
-
-  SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('api', app, document);
+  }
 
   await app.listen(process.env.PORT ?? 8000);
 }
