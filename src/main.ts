@@ -6,16 +6,19 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { join } from 'path';
 import { HttpExceptionFilter } from './common/filter/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  const configService = app.get(ConfigService);
+
   app.use(helmet());
 
   const allowedOrigins = [
-    process.env.LOCAL_FRONTEND_URL,
-    process.env.FRONTEND_URL,
+    configService.get<string>('LOCAL_FRONTEND_URL'),
+    configService.get<string>('FRONTEND_URL'),
   ].filter(Boolean);
 
   app.enableCors({
@@ -23,7 +26,7 @@ async function bootstrap() {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error('Not allowed by CORS'), false);
       }
     },
     credentials: true,
@@ -45,20 +48,22 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  const config = new DocumentBuilder()
+  const swaggerConfig = new DocumentBuilder()
     .setTitle('Flowboard API')
     .setDescription('Task management API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
 
-  if (process.env.NODE_ENV !== 'production') {
-    const document = SwaggerModule.createDocument(app, config);
+  const enableSwagger = configService.get<boolean>('ENABLE_SWAGGER');
+
+  if (enableSwagger) {
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
 
     SwaggerModule.setup('api', app, document);
   }
 
-  await app.listen(process.env.PORT ?? 8000);
+  await app.listen(Number(configService.get<number>('PORT')));
 }
 
 bootstrap();
