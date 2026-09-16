@@ -55,7 +55,7 @@ export class ProjectMembersService {
   }
 
   async findProjectMembers(id: number, user: User) {
-    const projectsMember = await this.projectMemberRepository.find({
+    const projectsMembers = await this.projectMemberRepository.find({
       where: {
         project: {
           id,
@@ -66,7 +66,7 @@ export class ProjectMembersService {
       },
     });
 
-    const isUserMember = projectsMember.find(
+    const isUserMember = projectsMembers.find(
       (project) => project.user.id == user.id,
     );
     if (!isUserMember) {
@@ -74,7 +74,7 @@ export class ProjectMembersService {
     }
 
     return {
-      projectsMember,
+      projectsMembers,
     };
   }
 }
