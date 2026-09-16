@@ -18,6 +18,11 @@ export class FavoritesService {
     const project = await this.projectRepository.findOne({
       where: {
         id: projectId,
+        members: {
+          user: {
+            id: user.id,
+          },
+        },
       },
     });
 
