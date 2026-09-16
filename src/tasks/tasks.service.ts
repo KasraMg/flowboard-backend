@@ -57,23 +57,17 @@ export class TasksService {
             id: user.id,
           },
         },
+        columns: {
+          id: columnId,
+        },
+      },
+      relations: {
+        columns: true,
       },
     });
 
     if (!project) {
       throw new NotFoundException('project not found');
-    }
-    const column = await this.columnRepository.findOne({
-      where: {
-        id: columnId,
-        project: {
-          id: projectId,
-        },
-      },
-    });
-
-    if (!column) {
-      throw new NotFoundException('column not found');
     }
 
     const lastTask = await this.taskRepository.findOne({
@@ -88,6 +82,8 @@ export class TasksService {
     });
 
     const position = lastTask ? lastTask.position + 1 : 0;
+
+    const column = project.columns.find((c) => c.id == columnId);
 
     let assignees: User[] = [];
 
@@ -141,13 +137,9 @@ export class TasksService {
         id: taskId,
       },
       relations: {
-        project: {
-          owner: true,
-        },
         column: {
           project: true,
         },
-        creator: true,
         assignees: true,
       },
     });

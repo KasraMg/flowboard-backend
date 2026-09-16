@@ -10,8 +10,6 @@ export class FavoritesService {
   constructor(
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
     @InjectRepository(Favorite)
     private favoriteRepository: Repository<Favorite>,
   ) {}

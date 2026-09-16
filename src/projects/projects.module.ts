@@ -3,15 +3,10 @@ import { ProjectsService } from './projects.service';
 import { ProjectsController } from './projects.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Project } from './entities/project.entity';
-import { ProjectMember } from 'src/project-members/entities/project-member.entity';
 import { Favorite } from 'src/favorites/entities/favorite.entity';
-import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Project, ProjectMember, Favorite]),
-    AuthModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Project, Favorite])],
   controllers: [ProjectsController],
   providers: [ProjectsService],
 })

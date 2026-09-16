@@ -24,8 +24,10 @@ export class InvitationsService {
   constructor(
     @InjectRepository(Invitation)
     private invitationRepository: Repository<Invitation>,
+
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
+
     @InjectRepository(User)
     private userRepository: Repository<User>,
 
@@ -47,6 +49,7 @@ export class InvitationsService {
     if (!project) {
       throw new NotFoundException('Project not found');
     }
+
     const invitedUser = await this.userRepository.findOne({
       where: {
         email: createInvitationDto.email,
@@ -68,6 +71,7 @@ export class InvitationsService {
         status: InvitationStatus.PENDING,
       },
     });
+
     if (existingInvitation) {
       throw new ConflictException(
         'User already has a pending invitation to this project',
@@ -144,17 +148,12 @@ export class InvitationsService {
       };
     }
 
-    const queryRunner = this.dataSource.createQueryRunner();
-
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
+    return this.dataSource.transaction(async (manager) => {
       invitation.status = InvitationStatus.ACCEPTED;
 
-      await queryRunner.manager.save(Invitation, invitation);
+      await manager.save(Invitation, invitation);
 
-      const existingMember = await queryRunner.manager.findOne(ProjectMember, {
+      const existingMember = await manager.findOne(ProjectMember, {
         where: {
           project: {
             id: invitation.project.id,
@@ -169,26 +168,18 @@ export class InvitationsService {
         throw new ConflictException('User is already a member of this project');
       }
 
-      const projectMember = queryRunner.manager.create(ProjectMember, {
+      const projectMember = manager.create(ProjectMember, {
         project: invitation.project,
         user,
         role: ProjectMemberRole.MEMBER,
       });
 
-      await queryRunner.manager.save(ProjectMember, projectMember);
-
-      await queryRunner.commitTransaction();
+      await manager.save(ProjectMember, projectMember);
 
       return {
         message: 'Invitation accepted successfully',
       };
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-
-      throw error;
-    } finally {
-      await queryRunner.release();
-    }
+    });
   }
 
   remove(id: number) {

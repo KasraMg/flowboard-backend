@@ -12,42 +12,41 @@ import {
   ProjectMemberRole,
 } from 'src/project-members/entities/project-member.entity';
 import { Favorite } from 'src/favorites/entities/favorite.entity';
-import { AuthorizationService } from 'src/common/authorization.service';
-
+import { DataSource } from 'typeorm';
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
 
-    @InjectRepository(ProjectMember)
-    private projectMemberRepository: Repository<ProjectMember>,
-
     @InjectRepository(Favorite)
     private favoriterRepository: Repository<Favorite>,
 
-    private readonly authorizationService: AuthorizationService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createProjectDto: CreateProjectDto, user: User) {
-    const project = this.projectRepository.create({
-      ...createProjectDto,
-      owner: user,
+    return this.dataSource.transaction(async (manager) => {
+      const project = manager.create(Project, {
+        ...createProjectDto,
+        owner: user,
+      });
+
+      const savedProject = await manager.save(Project, project);
+
+      const projectMember = manager.create(ProjectMember, {
+        project: savedProject,
+        role: ProjectMemberRole.OWNER,
+        user,
+      });
+
+      await manager.save(ProjectMember, projectMember);
+
+      return {
+        message: 'project created successfully',
+        project: savedProject,
+      };
     });
-
-    const savedProject = await this.projectRepository.save(project);
-
-    const projectMember = this.projectMemberRepository.create({
-      project: savedProject,
-      role: ProjectMemberRole.OWNER,
-      user,
-    });
-    await this.projectMemberRepository.save(projectMember);
-
-    return {
-      message: 'project created successfully',
-      project: savedProject,
-    };
   }
 
   async findAll(user: User) {
@@ -125,6 +124,11 @@ export class ProjectsService {
     const project = await this.projectRepository.findOne({
       where: {
         id,
+        members: {
+          user: {
+            id: user.id,
+          },
+        },
       },
       relations: {
         owner: true,
@@ -170,15 +174,6 @@ export class ProjectsService {
     });
 
     project.isFave = Boolean(isProjectUserFave);
-    const isOwner = project.owner.id === user.id;
-
-    const isMember = project.members.some(
-      (member) => member.user.id === user.id,
-    );
-
-    if (!isOwner && !isMember) {
-      throw new NotFoundException('Project not found');
-    }
 
     return project;
   }
