@@ -164,19 +164,24 @@ export class ColumnsService {
     const column = await this.columnRepository.findOne({
       where: {
         id,
-        project: {
-          members: {
-            user: { id: user.id },
-          },
-        },
+      },
+      relations: {
+        project: true,
       },
     });
 
     if (!column) {
-      throw new NotFoundException('column not found');
+      throw new NotFoundException('Column not found');
     }
 
+    await this.authorizationService.requireRoles(user, column.project.id, [
+      ProjectMemberRole.OWNER,
+      ProjectMemberRole.ADMIN,
+      ProjectMemberRole.MEMBER,
+    ]);
+
     await this.columnRepository.delete(id);
+
     return {
       message: 'Column removed successfully',
     };
