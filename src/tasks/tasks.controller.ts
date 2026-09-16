@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -16,6 +15,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from 'src/users/entities/user.entity';
 import { ReorderTasksDto } from './dto/reorder-task-dto';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Controller('tasks')
 export class TasksController {
@@ -24,8 +24,8 @@ export class TasksController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  create(@Body() createTaskDto: CreateTaskDto, @Req() req: Express.Request) {
-    return this.tasksService.create(createTaskDto, req.user as User);
+  create(@Body() createTaskDto: CreateTaskDto, @CurrentUser() user: User) {
+    return this.tasksService.create(createTaskDto, user);
   }
 
   @Get()
@@ -44,9 +44,9 @@ export class TasksController {
   update(
     @Param('taskId') taskId: string,
     @Body() updateTaskDto: UpdateTaskDto,
-    @Req() req: Express.Request,
+    @CurrentUser() user: User,
   ) {
-    return this.tasksService.update(+taskId, updateTaskDto, req.user as User);
+    return this.tasksService.update(+taskId, updateTaskDto, user);
   }
 
   @Patch('reorder/:projectId')
@@ -55,19 +55,15 @@ export class TasksController {
   reorder(
     @Param('projectId') projectId: number,
     @Body() reorderTasksDto: ReorderTasksDto,
-    @Req() req: Express.Request,
+    @CurrentUser() user: User,
   ) {
-    return this.tasksService.reorder(
-      projectId,
-      reorderTasksDto,
-      req.user as User,
-    );
+    return this.tasksService.reorder(projectId, reorderTasksDto, user);
   }
 
   @Delete(':taskId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  remove(@Param('taskId') taskId: string, @Req() req: Express.Request) {
-    return this.tasksService.remove(+taskId, req.user as User);
+  remove(@Param('taskId') taskId: string, @CurrentUser() user: User) {
+    return this.tasksService.remove(+taskId, user);
   }
 }

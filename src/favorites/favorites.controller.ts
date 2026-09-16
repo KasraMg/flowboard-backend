@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from 'src/users/entities/user.entity';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Controller('favorites')
 export class FavoritesController {
@@ -11,14 +12,14 @@ export class FavoritesController {
   @Post('toggle/:projectId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  toggle(@Param('projectId') projectId: string, @Req() req: Express.Request) {
-    return this.favoritesService.toggle(+projectId, req.user as User);
+  toggle(@Param('projectId') projectId: string, @CurrentUser() user: User) {
+    return this.favoritesService.toggle(+projectId, user);
   }
 
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  findAll(@Req() req: Express.Request) {
-    return this.favoritesService.findAll(req.user as User);
+  findAll(@CurrentUser() user: User) {
+    return this.favoritesService.findAll(user);
   }
 }

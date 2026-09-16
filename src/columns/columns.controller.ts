@@ -4,7 +4,6 @@ import {
   Body,
   Patch,
   Param,
-  Req,
   UseGuards,
   Delete,
 } from '@nestjs/common';
@@ -15,6 +14,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from 'src/users/entities/user.entity';
 import { ReorderColumnsDto } from './dto/reorder-column-dto';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Controller('columns')
 export class ColumnsController {
@@ -26,13 +26,9 @@ export class ColumnsController {
   create(
     @Param('projectId') projectId: number,
     @Body() createColumnDto: CreateColumnDto,
-    @Req() req: Express.Request,
+    @CurrentUser() user: User,
   ) {
-    return this.columnsService.create(
-      createColumnDto,
-      req.user as User,
-      projectId,
-    );
+    return this.columnsService.create(createColumnDto, user, projectId);
   }
 
   @Patch(':id')
@@ -41,9 +37,9 @@ export class ColumnsController {
   update(
     @Param('id') id: number,
     @Body() updateColumnDto: UpdateColumnDto,
-    @Req() req: Express.Request,
+    @CurrentUser() user: User,
   ) {
-    return this.columnsService.update(id, updateColumnDto, req.user as User);
+    return this.columnsService.update(id, updateColumnDto, user);
   }
 
   @Patch('reorder/:projectId')
@@ -52,19 +48,15 @@ export class ColumnsController {
   reorder(
     @Param('projectId') projectId: number,
     @Body() reorderColumnsDto: ReorderColumnsDto,
-    @Req() req: Express.Request,
+    @CurrentUser() user: User,
   ) {
-    return this.columnsService.reorder(
-      projectId,
-      reorderColumnsDto,
-      req.user as User,
-    );
+    return this.columnsService.reorder(projectId, reorderColumnsDto, user);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  remove(@Param('id') id: string, @Req() req: Express.Request) {
-    return this.columnsService.remove(+id, req.user as User);
+  remove(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.columnsService.remove(+id, user);
   }
 }

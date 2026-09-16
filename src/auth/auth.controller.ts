@@ -1,13 +1,13 @@
-import { Body, Controller, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Get, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
-import express from 'express';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from 'src/users/entities/user.entity';
 import { ResetPasswordDto } from './dto/reset.password.dto';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -24,8 +24,8 @@ export class AuthController {
   @Get('me')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  getMe(@Req() req: express.Request) {
-    return this.authService.findMe((req.user as User).id);
+  getMe(@CurrentUser() user: User) {
+    return this.authService.findMe(user.id);
   }
 
   @Post('forgot-password/:email')

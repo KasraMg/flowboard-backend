@@ -4,7 +4,6 @@ import {
   Get,
   Patch,
   Put,
-  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -15,6 +14,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -30,18 +30,15 @@ export class UsersController {
   @Get('sidebar')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  getSidebar(@Req() req: Express.Request) {
-    return this.userService.getSidebar(req.user as User);
+  getSidebar(@CurrentUser() user: User) {
+    return this.userService.getSidebar(user);
   }
 
   @Put()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  updateUser(
-    @Body() updateUserDto: UpdateUserDto,
-    @Req() req: Express.Request,
-  ) {
-    return this.userService.updateUser(req.user as User, updateUserDto);
+  updateUser(@Body() updateUserDto: UpdateUserDto, @CurrentUser() user: User) {
+    return this.userService.updateUser(user, updateUserDto);
   }
 
   @Patch('me/avatar')
@@ -55,9 +52,9 @@ export class UsersController {
     }),
   )
   updateAvatar(
-    @Req() req: Express.Request,
+    @CurrentUser() user: User,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.userService.updateAvatar(req.user as User, file);
+    return this.userService.updateAvatar(user, file);
   }
 }

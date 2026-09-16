@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { InvitationsService } from './invitations.service';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
@@ -15,6 +14,7 @@ import { UpdateInvitationDto } from './dto/update-invitation.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Controller('invitations')
 export class InvitationsController {
@@ -25,19 +25,16 @@ export class InvitationsController {
   @ApiBearerAuth()
   create(
     @Body() createInvitationDto: CreateInvitationDto,
-    @Req() req: Express.Request,
+    @CurrentUser() user: User,
   ) {
-    return this.invitationsService.create(
-      createInvitationDto,
-      req.user as User,
-    );
+    return this.invitationsService.create(createInvitationDto, user);
   }
 
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  findAll(@Req() req: Express.Request) {
-    return this.invitationsService.findAll(req.user as User);
+  findAll(@CurrentUser() user: User) {
+    return this.invitationsService.findAll(user);
   }
 
   @Patch(':id/status')
@@ -46,14 +43,9 @@ export class InvitationsController {
   changeStatus(
     @Param('id') id: string,
     @Body() updateInvitationDto: UpdateInvitationDto,
-    @Req() req: Express.Request,
+    @CurrentUser() user: User,
   ) {
-    return this.invitationsService.changeStatus(
-      +id,
-      updateInvitationDto,
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-      req.user as User,
-    );
+    return this.invitationsService.changeStatus(+id, updateInvitationDto, user);
   }
 
   @Delete(':id')

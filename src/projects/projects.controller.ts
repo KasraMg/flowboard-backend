@@ -8,7 +8,6 @@ import {
   Delete,
   ParseIntPipe,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -16,6 +15,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Controller('projects')
 export class ProjectsController {
@@ -26,23 +26,23 @@ export class ProjectsController {
   @ApiBearerAuth()
   create(
     @Body() createProjectDto: CreateProjectDto,
-    @Req() req: Express.Request,
+    @CurrentUser() user: User,
   ) {
-    return this.projectsService.create(createProjectDto, req.user as User);
+    return this.projectsService.create(createProjectDto, user);
   }
 
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  findAll(@Req() req: Express.Request) {
-    return this.projectsService.findAll(req.user as User);
+  findAll(@CurrentUser() user: User) {
+    return this.projectsService.findAll(user);
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Express.Request) {
-    return this.projectsService.findOne(id, req.user as User);
+  findOne(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
+    return this.projectsService.findOne(id, user);
   }
 
   @Patch(':id')
@@ -51,15 +51,15 @@ export class ProjectsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProjectDto: UpdateProjectDto,
-    @Req() req: Express.Request,
+    @CurrentUser() user: User,
   ) {
-    return this.projectsService.update(id, updateProjectDto, req.user as User);
+    return this.projectsService.update(id, updateProjectDto, user);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  remove(@Param('id', ParseIntPipe) id: number, @Req() req: Express.Request) {
-    return this.projectsService.remove(id, req.user as User);
+  remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
+    return this.projectsService.remove(id, user);
   }
 }

@@ -1,10 +1,9 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import express from 'express';
-
 import { DashboardService } from './dashboard.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -13,7 +12,7 @@ export class DashboardController {
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  getDashboard(@Req() req: express.Request) {
-    return this.dashboardService.getDashboard((req.user as User).id);
+  getDashboard(@CurrentUser() user: User) {
+    return this.dashboardService.getDashboard(user.id);
   }
 }

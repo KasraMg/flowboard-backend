@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
   ParseIntPipe,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
@@ -15,6 +14,7 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from 'src/users/entities/user.entity';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -33,22 +33,22 @@ export class NotificationsController {
   @Get('')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  findOne(@Req() req: Express.Request) {
-    return this.notificationsService.findAll(req.user as User);
+  findOne(@CurrentUser() user: User) {
+    return this.notificationsService.findAll(user);
   }
 
   @Patch('read-all')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  readAll(@Req() req: Express.Request) {
-    return this.notificationsService.readAll(req.user as User);
+  readAll(@CurrentUser() user: User) {
+    return this.notificationsService.readAll(user);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  update(@Param('id', ParseIntPipe) id: number, @Req() req: Express.Request) {
-    return this.notificationsService.update(req.user as User, id);
+  update(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
+    return this.notificationsService.update(user, id);
   }
 
   @Delete(':id')
