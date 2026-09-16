@@ -40,7 +40,7 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Returns access token',
+    description: 'Returns token',
   })
   @ApiResponse({
     status: 401,
