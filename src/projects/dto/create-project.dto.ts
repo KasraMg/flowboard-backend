@@ -1,5 +1,5 @@
-import { IsOptional, IsString, MinLength } from 'class-validator';
-import { Column } from 'typeorm';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
 
 export enum ProjectBackground {
   OCEAN = 'ocean',
@@ -11,18 +11,26 @@ export enum ProjectBackground {
 }
 
 export class CreateProjectDto {
+  @ApiProperty({
+    example: 'FlowBoard',
+    description: 'Project title',
+  })
   @IsString()
   @MinLength(3)
   title!: string;
 
+  @ApiPropertyOptional({
+    example: 'A Trello like project management app',
+  })
   @IsString()
   @IsOptional()
-  description!: string;
+  description?: string;
 
-  @Column({
-    type: 'enum',
+  @ApiProperty({
     enum: ProjectBackground,
+    example: ProjectBackground.OCEAN,
     default: ProjectBackground.OCEAN,
   })
+  @IsEnum(ProjectBackground)
   background!: ProjectBackground;
 }

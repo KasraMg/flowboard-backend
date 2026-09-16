@@ -20,7 +20,7 @@ export class ProjectsService {
     private projectRepository: Repository<Project>,
 
     @InjectRepository(Favorite)
-    private favoriterRepository: Repository<Favorite>,
+    private favoriteRepository: Repository<Favorite>,
 
     private readonly dataSource: DataSource,
   ) {}
@@ -162,7 +162,7 @@ export class ProjectsService {
       throw new NotFoundException('Project not found');
     }
 
-    const isProjectUserFave = await this.favoriterRepository.findOne({
+    const isProjectUserFave = await this.favoriteRepository.findOne({
       where: {
         user: {
           id: user.id,
