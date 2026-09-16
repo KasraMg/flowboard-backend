@@ -1,49 +1,69 @@
 import {
   Body,
   Controller,
-  Get,
   Patch,
   Put,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+
+import { FileInterceptor } from '@nestjs/platform-express';
+
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
-import { User } from './entities/user.entity';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { User } from './entities/user.entity';
+
+@ApiTags('Users')
 @Controller('users')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  getUsers() {
-    return this.userService.getUsers();
-  }
-
-  @Get('sidebar')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @Patch('sidebar')
+  @ApiOperation({
+    summary: 'Get sidebar data',
+  })
   getSidebar(@CurrentUser() user: User) {
     return this.userService.getSidebar(user);
   }
 
-  @Put()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  updateUser(@Body() updateUserDto: UpdateUserDto, @CurrentUser() user: User) {
-    return this.userService.updateUser(user, updateUserDto);
+  @Put('me')
+  @ApiOperation({
+    summary: 'Update current user profile',
+  })
+  updateUser(@Body() dto: UpdateUserDto, @CurrentUser() user: User) {
+    return this.userService.updateUser(user, dto);
   }
 
   @Patch('me/avatar')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update user avatar',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        avatar: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @UseInterceptors(
     FileInterceptor('avatar', {
       limits: {
