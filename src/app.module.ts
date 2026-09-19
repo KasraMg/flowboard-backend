@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,7 +16,8 @@ import { MailModule } from './mail/mail.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { NotificationsModule } from './notifications/notifications.module';
 import { validate } from './config/env.validation';
-
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,6 +40,13 @@ import { validate } from './config/env.validation';
         // synchronize: configService.get('NODE_ENV') !== 'production',
       }),
     }),
+
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60_000,
+        limit: 70,
+      },
+    ]),
     MailModule,
 
     UsersModule,
@@ -57,6 +68,12 @@ import { validate } from './config/env.validation';
     FavoritesModule,
 
     NotificationsModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

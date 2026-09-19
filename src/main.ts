@@ -1,16 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { join } from 'path';
 import { HttpExceptionFilter } from './common/filter/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { ConfigService } from '@nestjs/config';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const logger = new Logger('Bootstrap');
 
   const configService = app.get(ConfigService);
 
@@ -64,6 +65,9 @@ async function bootstrap() {
   }
 
   await app.listen(Number(configService.get<number>('PORT')));
+  logger.log(
+    `Application is running on port ${configService.get<number>('PORT')}`,
+  );
 }
 
 bootstrap();
