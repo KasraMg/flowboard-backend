@@ -11,6 +11,8 @@ import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableShutdownHooks();
+
   const logger = new Logger('Bootstrap');
 
   const configService = app.get(ConfigService);

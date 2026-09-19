@@ -18,6 +18,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { validate } from './config/env.validation';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { HealthModule } from './health/health.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -68,6 +69,8 @@ import { APP_GUARD } from '@nestjs/core';
     FavoritesModule,
 
     NotificationsModule,
+
+    HealthModule,
   ],
   providers: [
     {

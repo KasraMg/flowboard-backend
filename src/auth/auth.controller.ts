@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -12,7 +13,7 @@ import {
 } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
-
+import { Throttle } from '@nestjs/throttler';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
@@ -35,6 +36,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({
     summary: 'Login user',
   })
@@ -61,6 +63,7 @@ export class AuthController {
   }
 
   @Post('forgot-password/:email')
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({
     summary: 'Send password reset OTP',
   })
@@ -69,6 +72,7 @@ export class AuthController {
   }
 
   @Post('verify-otp/:email/:otp')
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({
     summary: 'Verify password reset OTP',
   })
@@ -77,6 +81,7 @@ export class AuthController {
   }
 
   @Post('reset-password/:email')
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({
     summary: 'Reset user password',
   })

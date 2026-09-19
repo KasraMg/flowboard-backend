@@ -11,6 +11,8 @@ export function validate(config: Record<string, unknown>) {
 
     PORT: Joi.number().default(8000),
 
+    JWT_SECRET: Joi.string().required(),
+
     LOCAL_FRONTEND_URL: Joi.string().required(),
 
     FRONTEND_URL: Joi.string().required(),

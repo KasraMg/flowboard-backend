@@ -10,6 +10,7 @@ import { ProjectMember } from 'src/project-members/entities/project-member.entit
 import { MailModule } from 'src/mail/mail.module';
 import { PasswordResetModule } from 'src/password-reset/password-reset.module';
 import { AuthorizationService } from 'src/common/authorization.service';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -18,11 +19,14 @@ import { AuthorizationService } from 'src/common/authorization.service';
     MailModule,
     PasswordResetModule,
 
-    JwtModule.register({
-      secret: 'super-secret-key',
-      signOptions: {
-        expiresIn: '1d',
-      },
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: '1d',
+        },
+      }),
     }),
   ],
 
