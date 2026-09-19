@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import Joi from 'joi';
 
 export function validate(config: Record<string, unknown>) {
