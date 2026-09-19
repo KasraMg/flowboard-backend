@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Patch,
   Put,
   UploadedFile,
@@ -32,7 +33,7 @@ import { User } from './entities/user.entity';
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
-  @Patch('sidebar')
+  @Get('sidebar')
   @ApiOperation({
     summary: 'Get sidebar data',
   })

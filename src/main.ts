@@ -17,7 +17,13 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: {
+        policy: 'cross-origin',
+      },
+    }),
+  );
 
   const allowedOrigins = [
     configService.get<string>('LOCAL_FRONTEND_URL'),

@@ -12,5 +12,32 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flowboard-backend
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads_data:/app/uploads
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BACKEND_URL: http://localhost:8000
+    container_name: flowboard-frontend
+    restart: always
+    env_file:
+      - ../frontend/.env
+    ports:
+      - "3000:3000"
+
 volumes:
   postgres_data:
+  uploads_data:

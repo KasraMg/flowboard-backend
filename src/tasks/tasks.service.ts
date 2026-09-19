@@ -147,7 +147,7 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException('Task not found');
     }
-    await this.authorizationService.requireRoles(user, task.project.id, [
+    await this.authorizationService.requireRoles(user, task.column.project.id, [
       ProjectMemberRole.OWNER,
       ProjectMemberRole.ADMIN,
       ProjectMemberRole.MEMBER,
