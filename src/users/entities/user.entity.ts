@@ -1,8 +1,8 @@
-import { Favorite } from '@/favorites/entities/favorite.entity';
-import { Notification } from '@/notifications/entities/notification.entity';
-import { ProjectMember } from '@/project-members/entities/project-member.entity';
-import { Project } from '@/projects/entities/project.entity';
-import { Task } from '@/tasks/entities/task.entity';
+import { Favorite } from '../../favorites/entities/favorite.entity';
+import { Notification } from '../../notifications/entities/notification.entity';
+import { ProjectMember } from '../../project-members/entities/project-member.entity';
+import { Project } from '../../projects/entities/project.entity';
+import { Task } from '../../tasks/entities/task.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

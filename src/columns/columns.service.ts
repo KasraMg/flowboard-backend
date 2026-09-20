@@ -6,14 +6,14 @@ import {
 } from '@nestjs/common';
 import { CreateColumnDto } from './dto/create-column.dto';
 import { UpdateColumnDto } from './dto/update-column.dto';
-import { User } from '@/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Project } from '@/projects/entities/project.entity';
+import { Project } from '../projects/entities/project.entity';
 import { Repository } from 'typeorm';
 import { Column } from './entities/column.entity';
 import { ReorderColumnsDto } from './dto/reorder-column-dto';
-import { AuthorizationService } from '@/common/authorization.service';
-import { ProjectMemberRole } from '@/project-members/entities/project-member.entity';
+import { AuthorizationService } from '../common/authorization.service';
+import { ProjectMemberRole } from '../project-members/entities/project-member.entity';
 
 @Injectable()
 export class ColumnsService {

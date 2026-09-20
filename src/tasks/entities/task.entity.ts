@@ -1,6 +1,6 @@
-import { Column as ColumnEntity } from '@/columns/entities/column.entity';
-import { Project } from '@/projects/entities/project.entity';
-import { User } from '@/users/entities/user.entity';
+import { Column as ColumnEntity } from '../../columns/entities/column.entity';
+import { Project } from '../../projects/entities/project.entity';
+import { User } from '../../users/entities/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

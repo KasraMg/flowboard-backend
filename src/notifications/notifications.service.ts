@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { User } from '@/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Notification } from './entities/notification.entity';
 import { Repository } from 'typeorm';
-import { InvitationsService } from '@/invitations/invitations.service';
+import { InvitationsService } from '../invitations/invitations.service';
 
 @Injectable()
 export class NotificationsService {

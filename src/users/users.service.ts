@@ -3,16 +3,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Project } from '@/projects/entities/project.entity';
-import { Favorite } from '@/favorites/entities/favorite.entity';
+import { Project } from '../projects/entities/project.entity';
+import { Favorite } from '../favorites/entities/favorite.entity';
 import { BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { Notification } from '@/notifications/entities/notification.entity';
+import { Notification } from '../notifications/entities/notification.entity';
 import {
   Invitation,
   InvitationStatus,
-} from '@/invitations/entities/invitation.entity';
-import { ImageKitService } from '@/imagekit/imagekit.service';
+} from '../invitations/entities/invitation.entity';
+import { ImageKitService } from '../imagekit/imagekit.service';
 @Injectable()
 export class UsersService {
   constructor(

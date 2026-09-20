@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Resend } from 'resend';
-import { Project } from '@/projects/entities/project.entity';
-import { Task } from '@/tasks/entities/task.entity';
+import { Project } from '../projects/entities/project.entity';
+import { Task } from '../tasks/entities/task.entity';
 
 @Injectable()
 export class MailService {

@@ -9,18 +9,18 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './entities/task.entity';
 import { In, Repository } from 'typeorm';
-import { User } from '@/users/entities/user.entity';
-import { Project } from '@/projects/entities/project.entity';
-import { Column } from '@/columns/entities/column.entity';
+import { User } from '../users/entities/user.entity';
+import { Project } from '../projects/entities/project.entity';
+import { Column } from '../columns/entities/column.entity';
 import {
   ProjectMember,
   ProjectMemberRole,
-} from '@/project-members/entities/project-member.entity';
+} from '../project-members/entities/project-member.entity';
 import { ReorderTasksDto } from './dto/reorder-task-dto';
-import { MailService } from '@/mail/mail.service';
-import { NotificationsService } from '@/notifications/notifications.service';
-import { NotificationType } from '@/notifications/entities/notification.entity';
-import { AuthorizationService } from '@/common/authorization.service';
+import { MailService } from '../mail/mail.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/entities/notification.entity';
+import { AuthorizationService } from '../common/authorization.service';
 
 @Injectable()
 export class TasksService {

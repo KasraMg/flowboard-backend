@@ -4,9 +4,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { ProjectMember } from '@/project-members/entities/project-member.entity';
-import { Task } from '@/tasks/entities/task.entity';
-import { ProjectStatus } from '@/projects/entities/project.entity';
+import { ProjectMember } from '../project-members/entities/project-member.entity';
+import { Task } from '../tasks/entities/task.entity';
+import { ProjectStatus } from '../projects/entities/project.entity';
 
 @Injectable()
 export class DashboardService {

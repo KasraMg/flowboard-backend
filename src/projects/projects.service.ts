@@ -6,12 +6,12 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from './entities/project.entity';
-import { User } from '@/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import {
   ProjectMember,
   ProjectMemberRole,
-} from '@/project-members/entities/project-member.entity';
-import { Favorite } from '@/favorites/entities/favorite.entity';
+} from '../project-members/entities/project-member.entity';
+import { Favorite } from '../favorites/entities/favorite.entity';
 import { DataSource } from 'typeorm';
 @Injectable()
 export class ProjectsService {

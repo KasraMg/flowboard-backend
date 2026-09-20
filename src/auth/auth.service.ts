@@ -10,8 +10,8 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
-import { PasswordResetService } from '@/password-reset/password-reset.service';
-import { MailService } from '@/mail/mail.service';
+import { PasswordResetService } from '../password-reset/password-reset.service';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {

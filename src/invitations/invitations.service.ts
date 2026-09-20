@@ -8,16 +8,16 @@ import {
   InvitationAction,
   UpdateInvitationDto,
 } from './dto/update-invitation.dto';
-import { User } from '@/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Invitation, InvitationStatus } from './entities/invitation.entity';
 import { DataSource, Repository } from 'typeorm';
-import { Project } from '@/projects/entities/project.entity';
+import { Project } from '../projects/entities/project.entity';
 import {
   ProjectMember,
   ProjectMemberRole,
-} from '@/project-members/entities/project-member.entity';
-import { MailService } from '@/mail/mail.service';
+} from '../project-members/entities/project-member.entity';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class InvitationsService {

@@ -20,9 +20,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth/jwt-auth.guard';
-import { User } from '@/users/entities/user.entity';
-import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
+import { User } from '../users/entities/user.entity';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { ReorderTasksDto } from './dto/reorder-task-dto';
 
 @ApiTags('Tasks')

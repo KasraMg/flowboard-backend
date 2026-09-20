@@ -3,7 +3,7 @@ import { ProjectsService } from './projects.service';
 import { ProjectsController } from './projects.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Project } from './entities/project.entity';
-import { Favorite } from '@/favorites/entities/favorite.entity';
+import { Favorite } from '../favorites/entities/favorite.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Project, Favorite])],
