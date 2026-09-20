@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@imagekit/nodejs':
+        specifier: ^7.12.1
+        version: 7.12.1
       '@nestjs/common':
         specifier: ^11.0.1
         version: 11.1.28(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -458,6 +461,9 @@ packages:
   '@humanwhocodes/retry@0.4.3':
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
+
+  '@imagekit/nodejs@7.12.1':
+    resolution: {integrity: sha512-4eIg2llqpes+KbJ5AJSQgKp27b2oGR32wm/XckYsqPBJxpUYRQm0sBPRtmXdmV31hWG48J6d7NvKvW9Ylk3XdA==}
 
   '@inquirer/ansi@1.0.2':
     resolution: {integrity: sha512-S8qNSZiYzFd0wAcyG5AXCvUHC5Sr7xpZ9wZ2py9XR88jUz8wooStVx5M6dRzczbBWjic9NP7+rY0Xi7qqK/aMQ==}
@@ -3867,6 +3873,10 @@ snapshots:
   '@humanwhocodes/module-importer@1.0.1': {}
 
   '@humanwhocodes/retry@0.4.3': {}
+
+  '@imagekit/nodejs@7.12.1':
+    dependencies:
+      standardwebhooks: 1.0.0
 
   '@inquirer/ansi@1.0.2': {}
 

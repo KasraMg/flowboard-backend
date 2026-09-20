@@ -19,6 +19,7 @@ import { validate } from './config/env.validation';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { HealthModule } from './health/health.module';
+import { ImageKitModule } from './imagekit/imagekit.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -71,6 +72,8 @@ import { HealthModule } from './health/health.module';
     NotificationsModule,
 
     HealthModule,
+
+    ImageKitModule,
   ],
   providers: [
     {

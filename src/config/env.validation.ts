@@ -30,6 +30,9 @@ export function validate(config: Record<string, unknown>) {
     DATABASE_PASSWORD: Joi.string().required(),
 
     DATABASE_NAME: Joi.string().required(),
+    IMAGEKIT_PRIVATE_KEY: Joi.string().required(),
+    IMAGEKIT_PUBLIC_KEY: Joi.string().required(),
+    IMAGEKIT_URL_ENDPOINT: Joi.string().required(),
   });
 
   const { error, value } = schema.validate(config, {

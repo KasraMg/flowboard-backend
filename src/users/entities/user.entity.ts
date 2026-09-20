@@ -25,6 +25,12 @@ export class User {
   })
   avatar!: string | null;
 
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  avatarFileId!: string | null;
+
   @Column({ unique: true })
   email!: string;
 

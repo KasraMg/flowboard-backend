@@ -23,6 +23,7 @@
     "migration:revert": "pnpm typeorm -d src/database/data-source.ts migration:revert"
   },
   "dependencies": {
+    "@imagekit/nodejs": "^7.12.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^12.0.0",
     "@nestjs/core": "^11.0.1",

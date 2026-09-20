@@ -7,14 +7,12 @@ import { Project } from 'src/projects/entities/project.entity';
 import { Favorite } from 'src/favorites/entities/favorite.entity';
 import { BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { promises as fs } from 'fs';
-import { join } from 'path';
-import { randomUUID } from 'crypto';
 import { Notification } from 'src/notifications/entities/notification.entity';
 import {
   Invitation,
   InvitationStatus,
 } from 'src/invitations/entities/invitation.entity';
+import { ImageKitService } from 'src/imagekit/imagekit.service';
 @Injectable()
 export class UsersService {
   constructor(
@@ -28,6 +26,7 @@ export class UsersService {
     private notificationRepository: Repository<Notification>,
     @InjectRepository(Invitation)
     private invitationRepository: Repository<Invitation>,
+    private readonly imageKitService: ImageKitService,
   ) {}
 
   getUsers() {
@@ -132,50 +131,29 @@ export class UsersService {
       );
     }
 
-    const uploadDir = join(process.cwd(), 'uploads', 'avatars');
+    const oldAvatarFileId = user.avatarFileId;
 
-    await fs.mkdir(uploadDir, {
-      recursive: true,
+    const result = await this.imageKitService.uploadImage(
+      file.buffer,
+      `avatar-${user.id}-${Date.now()}`,
+    );
+
+    await this.userRepository.update(user.id, {
+      avatar: result.url,
+      avatarFileId: result.fileId,
     });
 
-    const fileName = `${randomUUID()}.webp`;
-    const filePath = join(uploadDir, fileName);
-
-    const avatarPath = `/uploads/avatars/${fileName}`;
-
-    const oldAvatar = user.avatar;
-
-    try {
-      await fs.writeFile(filePath, file.buffer);
-
-      await this.userRepository.update(user.id, {
-        avatar: avatarPath,
-      });
-
-      if (oldAvatar) {
-        const oldAvatarPath = join(process.cwd(), oldAvatar);
-
-        try {
-          await fs.unlink(oldAvatarPath);
-        } catch (error) {
-          if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-            console.error('Failed to delete old avatar:', error);
-          }
-        }
-      }
-
-      return {
-        message: 'Avatar updated successfully',
-        avatar: avatarPath,
-      };
-    } catch (error) {
+    if (oldAvatarFileId) {
       try {
-        await fs.unlink(filePath);
-      } catch {
-        //
+        await this.imageKitService.deleteFile(oldAvatarFileId);
+      } catch (error) {
+        console.error('Failed to delete old avatar from ImageKit:', error);
       }
-
-      throw error;
     }
+
+    return {
+      message: 'Avatar updated successfully',
+      avatar: result.url,
+    };
   }
 }
