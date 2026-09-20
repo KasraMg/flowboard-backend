@@ -121,42 +121,28 @@ export class ProjectsService {
   }
 
   async findOne(id: number, user: User) {
-    const project = await this.projectRepository.findOne({
-      where: {
-        id,
-        members: {
-          user: {
-            id: user.id,
-          },
-        },
-      },
-      relations: {
-        owner: true,
-        members: {
-          user: true,
-        },
-        columns: {
-          tasks: {
-            assignees: true,
-            project: {
-              owner: true,
-            },
-            creator: true,
-          },
-        },
-      },
-      order: {
-        columns: {
-          position: 'ASC',
-          tasks: {
-            position: 'ASC',
-          },
-        },
-        members: {
-          createdAt: 'ASC',
-        },
-      },
-    });
+    const project = await this.projectRepository
+      .createQueryBuilder('project')
+      .innerJoin(
+        'project.members',
+        'currentMember',
+        'currentMember.userId = :userId',
+        { userId: user.id },
+      )
+      .leftJoinAndSelect('project.owner', 'owner')
+      .leftJoinAndSelect('project.members', 'member')
+      .leftJoinAndSelect('member.user', 'memberUser')
+      .leftJoinAndSelect('project.columns', 'column')
+      .leftJoinAndSelect('column.tasks', 'task')
+      .leftJoinAndSelect('task.assignees', 'assignee')
+      .leftJoinAndSelect('task.project', 'taskProject')
+      .leftJoinAndSelect('taskProject.owner', 'taskProjectOwner')
+      .leftJoinAndSelect('task.creator', 'creator')
+      .where('project.id = :projectId', { projectId: id })
+      .orderBy('column.position', 'ASC')
+      .addOrderBy('task.position', 'ASC')
+      .addOrderBy('member.createdAt', 'ASC')
+      .getOne();
 
     if (!project) {
       throw new NotFoundException('Project not found');
