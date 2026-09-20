@@ -13,9 +13,9 @@ import { CreateColumnDto } from './dto/create-column.dto';
 import { UpdateColumnDto } from './dto/update-column.dto';
 import { ReorderColumnsDto } from './dto/reorder-column-dto';
 
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { User } from 'src/users/entities/user.entity';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth/jwt-auth.guard';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { User } from '@/users/entities/user.entity';
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 

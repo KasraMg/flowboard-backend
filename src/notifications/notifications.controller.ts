@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth/jwt-auth.guard';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -20,8 +20,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from 'src/users/entities/user.entity';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { User } from '@/users/entities/user.entity';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
 
 @ApiTags('Notifications')
 @Controller('notifications')

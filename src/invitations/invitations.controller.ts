@@ -19,9 +19,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
-import { User } from 'src/users/entities/user.entity';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth/jwt-auth.guard';
+import { User } from '@/users/entities/user.entity';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
 
 @ApiTags('Invitations')
 @Controller('invitations')

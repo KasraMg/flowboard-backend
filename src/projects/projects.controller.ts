@@ -12,9 +12,9 @@ import {
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
-import { User } from 'src/users/entities/user.entity';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth/jwt-auth.guard';
+import { User } from '@/users/entities/user.entity';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import {
   ApiBearerAuth,
   ApiBody,

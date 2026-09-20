@@ -11,8 +11,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { User } from 'src/users/entities/user.entity';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { User } from '@/users/entities/user.entity';
 import { Throttle } from '@nestjs/throttler';
 @ApiTags('Authentication')
 @Controller('auth')

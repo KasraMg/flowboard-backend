@@ -3,7 +3,7 @@ import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notification } from './entities/notification.entity';
-import { InvitationsModule } from 'src/invitations/invitations.module';
+import { InvitationsModule } from '@/invitations/invitations.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Notification]), InvitationsModule],

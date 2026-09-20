@@ -10,8 +10,8 @@ import {
   ProjectMemberRole,
 } from './entities/project-member.entity';
 import { Repository } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
-import { AuthorizationService } from 'src/common/authorization.service';
+import { User } from '@/users/entities/user.entity';
+import { AuthorizationService } from '@/common/authorization.service';
 
 @Injectable()
 export class ProjectMembersService {

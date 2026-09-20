@@ -3,11 +3,11 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Project } from 'src/projects/entities/project.entity';
-import { ProjectMember } from 'src/project-members/entities/project-member.entity';
-import { Favorite } from 'src/favorites/entities/favorite.entity';
-import { Invitation } from 'src/invitations/entities/invitation.entity';
-import { Notification } from 'src/notifications/entities/notification.entity';
+import { Project } from '@/projects/entities/project.entity';
+import { ProjectMember } from '@/project-members/entities/project-member.entity';
+import { Favorite } from '@/favorites/entities/favorite.entity';
+import { Invitation } from '@/invitations/entities/invitation.entity';
+import { Notification } from '@/notifications/entities/notification.entity';
 
 @Module({
   imports: [

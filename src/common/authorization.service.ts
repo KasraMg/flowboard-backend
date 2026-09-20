@@ -2,11 +2,11 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { User } from 'src/users/entities/user.entity';
+import { User } from '@/users/entities/user.entity';
 import {
   ProjectMember,
   ProjectMemberRole,
-} from 'src/project-members/entities/project-member.entity';
+} from '@/project-members/entities/project-member.entity';
 
 @Injectable()
 export class AuthorizationService {

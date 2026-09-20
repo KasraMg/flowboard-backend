@@ -7,7 +7,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ProjectMembersService } from './project-members.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth/jwt-auth.guard';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -15,8 +15,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from 'src/users/entities/user.entity';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { User } from '@/users/entities/user.entity';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
 
 @ApiTags('Project Members')
 @Controller('project-members')

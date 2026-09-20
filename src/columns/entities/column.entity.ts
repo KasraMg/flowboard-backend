@@ -1,5 +1,5 @@
-import { Project } from 'src/projects/entities/project.entity';
-import { Task } from 'src/tasks/entities/task.entity';
+import { Project } from '@/projects/entities/project.entity';
+import { Task } from '@/tasks/entities/task.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

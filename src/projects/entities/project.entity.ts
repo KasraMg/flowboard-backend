@@ -1,7 +1,7 @@
-import { Column as ColumnEntity } from 'src/columns/entities/column.entity';
-import { ProjectMember } from 'src/project-members/entities/project-member.entity';
-import { Task } from 'src/tasks/entities/task.entity';
-import { User } from 'src/users/entities/user.entity';
+import { Column as ColumnEntity } from '@/columns/entities/column.entity';
+import { ProjectMember } from '@/project-members/entities/project-member.entity';
+import { Task } from '@/tasks/entities/task.entity';
+import { User } from '@/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
