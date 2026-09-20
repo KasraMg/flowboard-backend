@@ -21,15 +21,18 @@ export function validate(config: Record<string, unknown>) {
 
     RESEND_API_KEY: Joi.string().required(),
 
-    DATABASE_HOST: Joi.string().required(),
+    // DATABASE_HOST: Joi.string().required(),
 
-    DATABASE_PORT: Joi.number().required(),
+    // DATABASE_PORT: Joi.number().required(),
 
-    DATABASE_USERNAME: Joi.string().required(),
+    // DATABASE_USERNAME: Joi.string().required(),
 
-    DATABASE_PASSWORD: Joi.string().required(),
+    // DATABASE_PASSWORD: Joi.string().required(),
 
-    DATABASE_NAME: Joi.string().required(),
+    // DATABASE_NAME: Joi.string().required(),
+
+    DATABASE_URL: Joi.string().required(),
+    DATABASE_DIRECT_URL: Joi.string().required(),
     IMAGEKIT_PRIVATE_KEY: Joi.string().required(),
     IMAGEKIT_PUBLIC_KEY: Joi.string().required(),
     IMAGEKIT_URL_ENDPOINT: Joi.string().required(),
