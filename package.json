@@ -97,5 +97,11 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   },
+  "pnpm": {
+  "onlyBuiltDependencies": [
+    "pg",
+    "bcrypt"
+  ]
+},
   "packageManager": "pnpm@10.13.1"
 }

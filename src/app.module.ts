@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
+import * as pg from 'pg';
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -32,7 +33,7 @@ import { ImageKitModule } from './imagekit/imagekit.module';
 
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-
+        driver: pg,
         url: configService.get<string>('DATABASE_URL'),
 
         ssl: true,
