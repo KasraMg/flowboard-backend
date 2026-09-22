@@ -55,9 +55,10 @@ export class AuthService {
     return {
       message: 'User registered successfully',
       user: {
-        id: savedUser.id,
-        name: savedUser.name,
-        email: savedUser.email,
+        ...savedUser,
+        avatar: null,
+        avatarFileId: null,
+        emailNotification: true,
       },
       access_token: accessToken,
     };
@@ -87,6 +88,7 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
       message: 'User logined successfully',
+      user,
     };
   }
 
