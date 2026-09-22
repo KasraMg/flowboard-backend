@@ -183,10 +183,10 @@ export class ProjectsService {
 
     Object.assign(project, updateProjectDto);
 
-    const updatedProject = await this.projectRepository.save(project);
+    await this.projectRepository.update(id, project);
 
     return {
-      project: updatedProject,
+      project,
       message: 'project updated successfully',
     };
   }

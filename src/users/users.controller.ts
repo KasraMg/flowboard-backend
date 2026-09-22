@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Patch,
-  Put,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -41,7 +40,7 @@ export class UsersController {
     return this.userService.getSidebar(user);
   }
 
-  @Put('me')
+  @Patch('me')
   @ApiOperation({
     summary: 'Update current user profile',
   })

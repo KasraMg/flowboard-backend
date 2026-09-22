@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import {
   BadRequestException,
   ForbiddenException,
@@ -12,10 +13,7 @@ import { In, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Project } from '../projects/entities/project.entity';
 import { Column } from '../columns/entities/column.entity';
-import {
-  ProjectMember,
-  ProjectMemberRole,
-} from '../project-members/entities/project-member.entity';
+import { ProjectMember } from '../project-members/entities/project-member.entity';
 import { ReorderTasksDto } from './dto/reorder-task-dto';
 import { MailService } from '../mail/mail.service';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -42,12 +40,7 @@ export class TasksService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto, user: User) {
-    const {
-      projectId,
-      columnId,
-      assigneeIds = [],
-      ...taskData
-    } = createTaskDto;
+    const { projectId, columnId, ...taskData } = createTaskDto;
 
     const project = await this.projectRepository.findOne({
       where: {
@@ -67,7 +60,13 @@ export class TasksService {
     });
 
     if (!project) {
-      throw new NotFoundException('project not found');
+      throw new NotFoundException('Project not found');
+    }
+
+    const column = project.columns.find((column) => column.id === columnId);
+
+    if (!column) {
+      throw new NotFoundException('Column not found');
     }
 
     const lastTask = await this.taskRepository.findOne({
@@ -83,30 +82,103 @@ export class TasksService {
 
     const position = lastTask ? lastTask.position + 1 : 0;
 
-    const column = project.columns.find((c) => c.id == columnId);
+    const task = this.taskRepository.create({
+      ...taskData,
+      project,
+      column,
+      position,
+      creator: user,
+      assignees: [],
+    });
 
-    let assignees: User[] = [];
+    const taskSaved = await this.taskRepository.save(task);
+
+    return {
+      task: taskSaved,
+      message: 'Task saved successfully',
+    };
+  }
+
+  async update(taskId: number, updateTaskDto: UpdateTaskDto, user: User) {
+    const { assigneeIds, ...taskData } = updateTaskDto;
+
+    const task = await this.taskRepository.findOne({
+      where: {
+        id: taskId,
+        project: {
+          members: {
+            user: {
+              id: user.id,
+            },
+          },
+        },
+      },
+      relations: {
+        column: {
+          project: true,
+        },
+        ...(assigneeIds !== undefined
+          ? {
+              assignees: true,
+            }
+          : {}),
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    let assigneesChanged = false;
+
+    if (assigneeIds !== undefined) {
+      const currentAssigneeIds = task.assignees
+        .map((assignee) => assignee.id)
+        .sort((a, b) => a - b);
+
+      const requestedAssigneeIds = [...assigneeIds].sort((a, b) => a - b);
+
+      assigneesChanged =
+        currentAssigneeIds.length !== requestedAssigneeIds.length ||
+        currentAssigneeIds.some(
+          (id, index) => id !== requestedAssigneeIds[index],
+        );
+    }
+
+    if (!assigneesChanged) {
+      await this.taskRepository.update(taskId, taskData);
+
+      return {
+        task: {
+          ...task,
+          ...taskData,
+        },
+        message: 'Task updated successfully',
+      };
+    }
+
+    const assignees =
+      assigneeIds && assigneeIds.length > 0
+        ? await this.userRepository.find({
+            where: assigneeIds.map((id) => ({
+              id,
+            })),
+          })
+        : [];
+
+    if (assignees.length !== assigneeIds?.length) {
+      throw new NotFoundException('One or more assignees not found');
+    }
 
     if (assigneeIds.length > 0) {
-      assignees = await this.userRepository.find({
-        where: assigneeIds.map((id) => ({ id })),
-      });
-
-      if (assignees.length !== assigneeIds.length) {
-        throw new NotFoundException('One or more assignees not found');
-      }
-
       const projectMemberIds = await this.projectMemberRepository.find({
         where: {
           project: {
-            id: projectId,
+            id: task.column.project.id,
           },
           user: {
             id: In(assigneeIds),
           },
-        },
-        relations: {
-          user: true,
         },
       });
 
@@ -114,87 +186,31 @@ export class TasksService {
         throw new BadRequestException('All assignees must be project members');
       }
     }
-    const task = this.taskRepository.create({
-      ...taskData,
-      project,
-      column,
-      assignees,
-      position,
-      creator: user,
-    });
 
-    const taskSaved = await this.taskRepository.save(task);
+    const currentAssigneeIds = task.assignees.map((assignee) => assignee.id);
 
-    return {
-      task: taskSaved,
-      message: 'task saved successfully',
-    };
-  }
-
-  async update(taskId: number, updateTaskDto: UpdateTaskDto, user: User) {
-    const task = await this.taskRepository.findOne({
-      where: {
-        id: taskId,
-      },
-      relations: {
-        column: {
-          project: true,
-        },
-        assignees: true,
-      },
-    });
-
-    if (!task) {
-      throw new NotFoundException('Task not found');
-    }
-    await this.authorizationService.requireRoles(user, task.column.project.id, [
-      ProjectMemberRole.OWNER,
-      ProjectMemberRole.ADMIN,
-      ProjectMemberRole.MEMBER,
-    ]);
-
-    const { assigneeIds, ...taskData } = updateTaskDto;
+    const newAssignees = assignees.filter(
+      (assignee) => !currentAssigneeIds.includes(assignee.id),
+    );
 
     Object.assign(task, taskData);
 
-    let newAssignees: User[] = [];
-
-    if (assigneeIds !== undefined && assigneeIds.length > 0) {
-      const assignees = await this.userRepository.find({
-        where: assigneeIds.map((id) => ({ id })),
-      });
-
-      if (assignees.length !== assigneeIds.length) {
-        throw new NotFoundException('One or more assignees not found');
-      }
-
-      const currentAssigneeIds = task.assignees.map((assignee) => assignee.id);
-
-      newAssignees = assignees.filter(
-        (assignee) => !currentAssigneeIds.includes(assignee.id),
-      );
-
-      task.assignees = assignees;
-    } else if (assigneeIds !== undefined) {
-      task.assignees = [];
-    }
+    task.assignees = assignees;
 
     const updatedTask = await this.taskRepository.save(task);
 
     for (const assignee of newAssignees) {
-      await this.notificationsService.create(assignee.id, {
+      this.notificationsService.create(assignee.id, {
         message: `You were assigned to the task "${updatedTask.title}"`,
         type: NotificationType.TASK_ASSIGNMENT,
         subject: task.column.project.title,
       });
+
       if (!assignee.emailNotification) {
         continue;
       }
 
-      await this.mailService.sendTaskAssignmentEmail(
-        assignee.email,
-        updatedTask,
-      );
+      this.mailService.sendTaskAssignmentEmail(assignee.email, updatedTask);
     }
 
     return {
@@ -202,7 +218,6 @@ export class TasksService {
       message: 'Task updated successfully',
     };
   }
-
   async remove(taskId: number, user: User) {
     const task = await this.taskRepository.findOne({
       where: {
@@ -262,27 +277,30 @@ export class TasksService {
   ) {
     const { taskId, targetColumnId, taskIds } = reorderTasksDto;
 
-    const project = await this.projectRepository.findOne({
-      where: {
-        id: projectId,
-      },
-    });
-
-    if (!project) {
-      throw new NotFoundException('Project not found');
+    if (!taskIds.length) {
+      throw new BadRequestException('Task order cannot be empty');
     }
 
-    await this.authorizationService.requireRoles(user, projectId, [
-      ProjectMemberRole.OWNER,
-      ProjectMemberRole.ADMIN,
-      ProjectMemberRole.MEMBER,
-    ]);
+    if (!taskIds.includes(taskId)) {
+      throw new BadRequestException(
+        'Dragged task must exist in target task order',
+      );
+    }
+
+    if (new Set(taskIds).size !== taskIds.length) {
+      throw new BadRequestException('Duplicate task IDs');
+    }
 
     const task = await this.taskRepository.findOne({
       where: {
         id: taskId,
         project: {
           id: projectId,
+          members: {
+            user: {
+              id: user.id,
+            },
+          },
         },
       },
       relations: {
@@ -311,20 +329,6 @@ export class TasksService {
       );
     }
 
-    if (!taskIds.length) {
-      throw new BadRequestException('Task order cannot be empty');
-    }
-
-    if (!taskIds.includes(taskId)) {
-      throw new BadRequestException(
-        'Dragged task must exist in target task order',
-      );
-    }
-
-    if (new Set(taskIds).size !== taskIds.length) {
-      throw new BadRequestException('Duplicate task IDs');
-    }
-
     const targetTasks = await this.taskRepository.find({
       where: {
         column: {
@@ -334,11 +338,12 @@ export class TasksService {
           id: projectId,
         },
       },
+      select: {
+        id: true,
+      },
     });
 
-    const targetTaskIds = new Set(
-      targetTasks.map((targetTask) => targetTask.id),
-    );
+    const targetTaskIds = new Set(targetTasks.map((task) => task.id));
 
     const isMovingBetweenColumns = sourceColumnId !== targetColumnId;
 
@@ -359,38 +364,28 @@ export class TasksService {
       throw new BadRequestException('Invalid task order');
     }
 
-    const tasks = await this.taskRepository.find({
-      where: taskIds.map((id) => ({
-        id,
-        project: {
-          id: projectId,
-        },
-      })),
-    });
+    const positionCase = taskIds
+      .map((id, index) => `WHEN id = ${id} THEN ${index}`)
+      .join(' ');
 
-    if (tasks.length !== taskIds.length) {
-      throw new BadRequestException(
-        'One or more tasks do not belong to this project',
-      );
-    }
-
-    const reorderedTasks = taskIds.map((id, index) => {
-      const currentTask = tasks.find((item) => item.id === id);
-
-      if (!currentTask) {
-        throw new BadRequestException('Invalid task order');
-      }
-
-      currentTask.position = index;
-
-      if (currentTask.id === taskId) {
-        currentTask.column = targetColumn;
-      }
-
-      return currentTask;
-    });
-
-    await this.taskRepository.save(reorderedTasks);
+    await this.taskRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        position: () => `CASE ${positionCase} END`,
+        ...(isMovingBetweenColumns
+          ? {
+              column: targetColumn,
+            }
+          : {}),
+      })
+      .where('id IN (:...taskIds)', {
+        taskIds,
+      })
+      .andWhere('projectId = :projectId', {
+        projectId,
+      })
+      .execute();
 
     if (isMovingBetweenColumns) {
       const sourceTasks = await this.taskRepository.find({
@@ -402,16 +397,34 @@ export class TasksService {
             id: projectId,
           },
         },
+        select: {
+          id: true,
+          position: true,
+        },
         order: {
           position: 'ASC',
         },
       });
 
-      sourceTasks.forEach((sourceTask, index) => {
-        sourceTask.position = index;
-      });
+      if (sourceTasks.length > 0) {
+        const sourcePositionCase = sourceTasks
+          .map((task, index) => `WHEN id = ${task.id} THEN ${index}`)
+          .join(' ');
 
-      await this.taskRepository.save(sourceTasks);
+        await this.taskRepository
+          .createQueryBuilder()
+          .update()
+          .set({
+            position: () => `CASE ${sourcePositionCase} END`,
+          })
+          .where('id IN (:...taskIds)', {
+            taskIds: sourceTasks.map((task) => task.id),
+          })
+          .andWhere('projectId = :projectId', {
+            projectId,
+          })
+          .execute();
+      }
     }
 
     return {

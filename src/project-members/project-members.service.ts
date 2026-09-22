@@ -27,6 +27,9 @@ export class ProjectMembersService {
       where: {
         project: {
           id: projectId,
+          owner: {
+            id: user.id,
+          },
         },
         user: {
           id: userId,
@@ -37,9 +40,6 @@ export class ProjectMembersService {
     if (!projectMember) {
       throw new NotFoundException('member not found');
     }
-    await this.authorizationService.requireRoles(user, projectId, [
-      ProjectMemberRole.OWNER,
-    ]);
 
     if (projectMember.role == ProjectMemberRole.OWNER) {
       throw new ConflictException('owner cannot be removed');

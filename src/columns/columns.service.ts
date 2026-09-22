@@ -13,7 +13,6 @@ import { Repository } from 'typeorm';
 import { Column } from './entities/column.entity';
 import { ReorderColumnsDto } from './dto/reorder-column-dto';
 import { AuthorizationService } from '../common/authorization.service';
-import { ProjectMemberRole } from '../project-members/entities/project-member.entity';
 
 @Injectable()
 export class ColumnsService {
@@ -63,6 +62,13 @@ export class ColumnsService {
     const column = await this.columnRepository.findOne({
       where: {
         id,
+        project: {
+          members: {
+            user: {
+              id: user.id,
+            },
+          },
+        },
       },
       relations: {
         project: {
@@ -78,15 +84,9 @@ export class ColumnsService {
       throw new NotFoundException('Column not found');
     }
 
-    await this.authorizationService.requireRoles(user, column.project.id, [
-      ProjectMemberRole.OWNER,
-      ProjectMemberRole.ADMIN,
-      ProjectMemberRole.MEMBER,
-    ]);
-
     Object.assign(column, updateColumnDto);
 
-    const updatedColumn = await this.columnRepository.save(column);
+    const updatedColumn = await this.columnRepository.update(id, column);
 
     return {
       message: 'Column updated successfully',
@@ -104,12 +104,14 @@ export class ColumnsService {
     const project = await this.projectRepository.findOne({
       where: {
         id: projectId,
-      },
-      relations: {
         members: {
-          user: true,
+          user: {
+            id: user.id,
+          },
         },
-        owner: true,
+      },
+      select: {
+        id: true,
       },
     });
 
@@ -117,17 +119,22 @@ export class ColumnsService {
       throw new ForbiddenException('Project not found');
     }
 
-    await this.authorizationService.requireRoles(user, project.id, [
-      ProjectMemberRole.OWNER,
-      ProjectMemberRole.ADMIN,
-      ProjectMemberRole.MEMBER,
-    ]);
+    if (!columnIds.length) {
+      throw new BadRequestException('Invalid columns');
+    }
+
+    if (new Set(columnIds).size !== columnIds.length) {
+      throw new BadRequestException('Duplicate column IDs');
+    }
 
     const columns = await this.columnRepository.find({
       where: {
         project: {
           id: projectId,
         },
+      },
+      select: {
+        id: true,
       },
     });
 
@@ -137,23 +144,29 @@ export class ColumnsService {
 
     const columnIdsSet = new Set(columns.map((column) => column.id));
 
-    const isValid = columnIds.every((id) => columnIdsSet.has(id));
-
-    if (!isValid) {
+    if (!columnIds.every((id) => columnIdsSet.has(id))) {
       throw new BadRequestException(
         'One or more columns do not belong to this project',
       );
     }
 
-    const reorderedColumns = columnIds.map((columnId, index) => {
-      const column = columns.find((column) => column.id === columnId)!;
+    const positionCase = columnIds
+      .map((id, index) => `WHEN id = ${id} THEN ${index}`)
+      .join(' ');
 
-      column.position = index;
-
-      return column;
-    });
-
-    await this.columnRepository.save(reorderedColumns);
+    await this.columnRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        position: () => `CASE ${positionCase} END`,
+      })
+      .where('projectId = :projectId', {
+        projectId,
+      })
+      .andWhere('id IN (:...columnIds)', {
+        columnIds,
+      })
+      .execute();
 
     return {
       message: 'Columns reordered successfully',
@@ -164,6 +177,13 @@ export class ColumnsService {
     const column = await this.columnRepository.findOne({
       where: {
         id,
+        project: {
+          members: {
+            user: {
+              id: user.id,
+            },
+          },
+        },
       },
       relations: {
         project: true,
@@ -173,12 +193,6 @@ export class ColumnsService {
     if (!column) {
       throw new NotFoundException('Column not found');
     }
-
-    await this.authorizationService.requireRoles(user, column.project.id, [
-      ProjectMemberRole.OWNER,
-      ProjectMemberRole.ADMIN,
-      ProjectMemberRole.MEMBER,
-    ]);
 
     await this.columnRepository.delete(id);
 

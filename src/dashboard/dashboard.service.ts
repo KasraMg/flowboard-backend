@@ -88,7 +88,7 @@ export class DashboardService {
         .addGroupBy('project.id')
         .addGroupBy('owner.id')
         .orderBy('project.createdAt', 'DESC')
-        .limit(4)
+        .limit(3)
         .getRawAndEntities(),
 
       this.taskRepository.count({
@@ -121,7 +121,7 @@ export class DashboardService {
         order: {
           updatedAt: 'DESC',
         },
-        take: 7,
+        take: 4,
       }),
 
       // --------------------------------

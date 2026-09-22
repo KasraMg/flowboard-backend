@@ -1,17 +1,11 @@
 import {
-  IsArray,
-  IsBoolean,
-  IsDateString,
-  IsIn,
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { TaskPriority } from '../entities/task.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTaskDto {
   @ApiProperty({
@@ -23,46 +17,6 @@ export class CreateTaskDto {
   @MinLength(3)
   @MaxLength(50)
   title!: string;
-
-  @ApiPropertyOptional({
-    example: 'Implement Trello like drag and drop system',
-    description: 'Task description',
-  })
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @ApiPropertyOptional({
-    example: false,
-    description: 'Task completion status',
-  })
-  @IsOptional()
-  @IsBoolean()
-  completed?: boolean;
-
-  @ApiPropertyOptional({
-    example: '#6366f1',
-    description: 'Task background color',
-  })
-  @IsOptional()
-  @IsString()
-  backgroundColor?: string;
-
-  @ApiPropertyOptional({
-    example: TaskPriority.HIGH,
-    enum: TaskPriority,
-  })
-  @IsOptional()
-  @IsIn(['Low', 'Medium', 'High', 'Urgent'])
-  priority?: TaskPriority;
-
-  @ApiPropertyOptional({
-    example: '2026-10-01',
-    description: 'Task due date',
-  })
-  @IsOptional()
-  @IsDateString()
-  dueDate?: string;
 
   @ApiProperty({
     example: 1,
@@ -77,14 +31,4 @@ export class CreateTaskDto {
   })
   @IsInt()
   columnId!: number;
-
-  @ApiPropertyOptional({
-    example: [5, 8],
-    description: 'Assigned user ids',
-    type: [Number],
-  })
-  @IsOptional()
-  @IsArray()
-  @IsInt({ each: true })
-  assigneeIds?: number[];
 }
